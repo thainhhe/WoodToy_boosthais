@@ -1,54 +1,41 @@
-"use client";
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
+  const menuItems = [
+    { name: "Trang chủ", href: "/" },
+    { name: "Về chúng tôi", href: "#about" },
+    { name: "Sản phẩm", href: "#products" },
+    { name: "Đội ngũ", href: "#team" },
+  ];
+
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
+    <nav className="bg-white/80 backdrop-blur-md shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           <Link to="/" className="flex items-center">
-            <span className="text-2xl font-bold text-amber-700">
-              🧩 WoodToys
+            <span className="text-3xl font-bold text-brand-primary">
+              WoodToys
             </span>
           </Link>
 
-          <div className="hidden md:flex space-x-8">
-            <Link
-              to="/"
-              className="text-gray-700 hover:text-amber-700 transition"
-            >
-              Trang chủ
-            </Link>
-            <a
-              href="#products"
-              className="text-gray-700 hover:text-amber-700 transition"
-            >
-              Sản phẩm
-            </a>
-            <a
-              href="#about"
-              className="text-gray-700 hover:text-amber-700 transition"
-            >
-              Về chúng tôi
-            </a>
-            <a
-              href="#contact"
-              className="text-gray-700 hover:text-amber-700 transition"
-            >
-              Liên hệ
-            </a>
+          <div className="hidden md:flex items-center space-x-8">
+            {menuItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className="font-medium text-brand-text hover:text-brand-secondary transition duration-300"
+              >
+                {item.name}
+              </a>
+            ))}
           </div>
 
-          <div className="hidden md:flex space-x-4">
-            <button className="px-4 py-2 text-amber-700 border border-amber-700 rounded hover:bg-amber-50 transition">
-              Đăng nhập
-            </button>
-            <button className="px-4 py-2 bg-amber-700 text-white rounded hover:bg-amber-800 transition">
-              Giỏ hàng
+          <div className="hidden md:flex items-center">
+            <button className="bg-brand-secondary text-white font-bold py-2 px-6 rounded-full hover:bg-opacity-90 transition duration-300">
+              Khám Phá
             </button>
           </div>
 
@@ -63,7 +50,7 @@ export default function Navbar() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
+                d="M4 6h16M4 12h16m-7 6h7"
               />
             </svg>
           </button>
@@ -71,27 +58,18 @@ export default function Navbar() {
 
         {isOpen && (
           <div className="md:hidden pb-4 space-y-2">
-            <Link to="/" className="block text-gray-700 hover:text-amber-700">
-              Trang chủ
-            </Link>
-            <a
-              href="#products"
-              className="block text-gray-700 hover:text-amber-700"
-            >
-              Sản phẩm
-            </a>
-            <a
-              href="#about"
-              className="block text-gray-700 hover:text-amber-700"
-            >
-              Về chúng tôi
-            </a>
-            <a
-              href="#contact"
-              className="block text-gray-700 hover:text-amber-700"
-            >
-              Liên hệ
-            </a>
+            {menuItems.map((item) => (
+              <a
+                key={item.name}
+                href={item.href}
+                className="block py-2 px-4 text-sm text-brand-text hover:bg-brand-light rounded"
+              >
+                {item.name}
+              </a>
+            ))}
+            <button className="w-full mt-2 bg-brand-secondary text-white font-bold py-2 px-6 rounded-full hover:bg-opacity-90 transition duration-300">
+              Khám Phá
+            </button>
           </div>
         )}
       </div>

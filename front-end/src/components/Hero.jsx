@@ -1,39 +1,32 @@
 export default function Hero() {
   return (
-    <section className="relative h-screen bg-gradient-to-r from-amber-900 to-amber-700 text-white overflow-hidden">
-      <div className="absolute inset-0 opacity-20">
-        <img
-          src="/wooden-toys-background.jpg"
-          alt="background"
-          className="w-full h-full object-cover"
-        />
-      </div>
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full">
-          <div className="space-y-6">
-            <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-              Khám phá thế giới đồ chơi gỗ
+    <section className="bg-brand-light">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="text-center md:text-left">
+            <h1 className="text-5xl md:text-6xl font-extrabold text-brand-primary leading-tight">
+              Nơi Sáng Tạo Bắt Nguồn Từ Gỗ
             </h1>
-            <p className="text-xl text-amber-100">
-              Những bộ lắp ghép gỗ tự nhiên, an toàn cho trẻ em. Phát triển sáng
-              tạo và trí tưởng tượng.
+            <p className="mt-6 text-lg text-brand-text max-w-lg mx-auto md:mx-0">
+              Khám phá bộ sưu tập đồ chơi gỗ an toàn, giúp bé phát triển tư duy
+              và kỹ năng qua từng giờ chơi vui vẻ.
             </p>
-            <div className="flex gap-4">
-              <button className="px-8 py-3 bg-white text-amber-700 font-bold rounded-lg hover:bg-amber-50 transition">
-                Khám phá ngay
+            <div className="mt-8 flex justify-center md:justify-start gap-4">
+              <button className="px-8 py-3 bg-brand-secondary text-white font-bold rounded-full hover:bg-opacity-90 transition duration-300 shadow-lg">
+                Mua Ngay
               </button>
-              <button className="px-8 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-amber-700 transition">
-                Xem video
+              <button className="px-8 py-3 bg-white text-brand-primary font-bold rounded-full hover:bg-gray-100 transition duration-300 shadow-lg">
+                Xem Video
               </button>
             </div>
           </div>
 
-          <div className="hidden md:block">
+          <div className="relative">
+            <div className="absolute -inset-2 bg-gradient-to-br from-pink-300 via-purple-300 to-blue-300 rounded-full blur-2xl opacity-50"></div>
             <img
               src="/wooden-puzzle-toys-collection.jpg"
-              alt="Wooden toys"
-              className="w-full rounded-lg shadow-2xl"
+              alt="Bộ sưu tập đồ chơi gỗ"
+              className="relative w-full rounded-3xl shadow-2xl"
             />
           </div>
         </div>

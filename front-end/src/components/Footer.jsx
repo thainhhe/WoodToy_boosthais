@@ -1,47 +1,48 @@
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          <div>
-            <h3 className="text-2xl font-bold mb-4">🧩 WoodToys</h3>
-            <p className="text-gray-400">
-              Đồ chơi gỗ chất lượng cao cho trẻ em
+    <footer className="bg-brand-primary text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-4">
+            <h3 className="text-3xl font-bold mb-4">WoodToys</h3>
+            <p className="text-gray-300 max-w-xs">
+              Đồ chơi gỗ chất lượng cao, khơi nguồn sáng tạo và đồng hành cùng
+              sự phát triển của trẻ.
             </p>
           </div>
 
-          <div>
-            <h4 className="font-bold mb-4">Sản phẩm</h4>
-            <ul className="space-y-2 text-gray-400">
+          <div className="lg:col-span-2">
+            <h4 className="font-bold mb-4 text-lg">Khám phá</h4>
+            <ul className="space-y-2 text-gray-300">
               <li>
-                <a href="#" className="hover:text-white transition">
-                  Tất cả sản phẩm
+                <a href="#about" className="hover:text-white transition">
+                  Về chúng tôi
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition">
-                  Bộ sưu tập mới
+                <a href="#products" className="hover:text-white transition">
+                  Sản phẩm
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition">
-                  Khuyến mãi
+                <a href="#team" className="hover:text-white transition">
+                  Đội ngũ
                 </a>
               </li>
             </ul>
           </div>
 
-          <div>
-            <h4 className="font-bold mb-4">Hỗ trợ</h4>
-            <ul className="space-y-2 text-gray-400">
+          <div className="lg:col-span-2">
+            <h4 className="font-bold mb-4 text-lg">Hỗ trợ</h4>
+            <ul className="space-y-2 text-gray-300">
               <li>
                 <a href="#" className="hover:text-white transition">
-                  Liên hệ
+                  FAQs
                 </a>
               </li>
               <li>
                 <a href="#" className="hover:text-white transition">
-                  FAQ
+                  Liên hệ
                 </a>
               </li>
               <li>
@@ -52,15 +53,26 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div>
-            <h4 className="font-bold mb-4">Liên hệ</h4>
-            <p className="text-gray-400 mb-2">📧 info@woodtoys.com</p>
-            <p className="text-gray-400 mb-2">📱 0123 456 789</p>
-            <p className="text-gray-400">📍 Hà Nội, Việt Nam</p>
+          <div className="lg:col-span-4">
+            <h4 className="font-bold mb-4 text-lg">Đăng ký nhận tin</h4>
+            <p className="text-gray-300 mb-4">
+              Nhận thông tin về sản phẩm mới và các chương trình khuyến mãi đặc
+              biệt!
+            </p>
+            <form className="flex">
+              <input
+                type="email"
+                placeholder="Email của bạn"
+                className="w-full px-4 py-2 rounded-l-md text-gray-800 focus:outline-none"
+              />
+              <button className="bg-brand-secondary text-white font-bold px-4 py-2 rounded-r-md hover:bg-opacity-90 transition">
+                Đăng ký
+              </button>
+            </form>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
+        <div className="border-t border-gray-700 mt-12 pt-8 text-center text-gray-400">
           <p>&copy; 2025 WoodToys. All rights reserved.</p>
         </div>
       </div>
