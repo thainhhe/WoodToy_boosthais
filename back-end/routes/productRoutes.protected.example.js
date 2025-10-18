@@ -7,6 +7,21 @@ import {
   updateProduct,
   deleteProduct,
 } from "../controllers/productController.js";
+import { protect, authorize } from "../middleware/authMiddleware.js";
+
+/**
+ * EXAMPLE: Protected Product Routes
+ * 
+ * This file shows how to protect your product routes with authentication and authorization.
+ * To use this configuration, replace the content of productRoutes.js with this file.
+ * 
+ * Routes configuration:
+ * - GET /api/products - Public (anyone can view products)
+ * - GET /api/products/:id - Public (anyone can view a single product)
+ * - POST /api/products - Protected (only admins can create products)
+ * - PUT /api/products/:id - Protected (only admins can update products)
+ * - DELETE /api/products/:id - Protected (only admins can delete products)
+ */
 
 /**
  * @swagger
@@ -20,7 +35,7 @@ import {
  * /api/products:
  *   get:
  *     summary: Get all products
- *     description: Retrieve a list of all products from the database
+ *     description: Retrieve a list of all products from the database (Public)
  *     tags: [Products]
  *     responses:
  *       200:
@@ -38,9 +53,11 @@ import {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *   post:
- *     summary: Create a new product
- *     description: Add a new product to the database
+ *     summary: Create a new product (Admin only)
+ *     description: Add a new product to the database (Requires admin role)
  *     tags: [Products]
+ *     security:
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -78,25 +95,25 @@ import {
  *               $ref: '#/components/schemas/Product'
  *       400:
  *         description: Bad request - Missing required fields
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       403:
+ *         description: Forbidden - User is not an admin
  *       500:
  *         description: Server Error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  */
-router.route("/").get(getProducts).post(createProduct);
+// Public: Get all products
+router.get("/", getProducts);
+
+// Protected: Create product (admin only)
+router.post("/", protect, authorize("admin"), createProduct);
 
 /**
  * @swagger
  * /api/products/{id}:
  *   get:
  *     summary: Get a product by ID
- *     description: Retrieve a single product by its MongoDB ID
+ *     description: Retrieve a single product by its MongoDB ID (Public)
  *     tags: [Products]
  *     parameters:
  *       - in: path
@@ -115,20 +132,14 @@ router.route("/").get(getProducts).post(createProduct);
  *               $ref: '#/components/schemas/Product'
  *       404:
  *         description: Product not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Server Error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *   put:
- *     summary: Update a product
- *     description: Update an existing product by its MongoDB ID
+ *     summary: Update a product (Admin only)
+ *     description: Update an existing product by its MongoDB ID (Requires admin role)
  *     tags: [Products]
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -165,26 +176,20 @@ router.route("/").get(getProducts).post(createProduct);
  *     responses:
  *       200:
  *         description: Product updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Product'
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       403:
+ *         description: Forbidden - User is not an admin
  *       404:
  *         description: Product not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Server Error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *   delete:
- *     summary: Delete a product
- *     description: Remove a product from the database by its MongoDB ID
+ *     summary: Delete a product (Admin only)
+ *     description: Remove a product from the database by its MongoDB ID (Requires admin role)
  *     tags: [Products]
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -196,27 +201,23 @@ router.route("/").get(getProducts).post(createProduct);
  *     responses:
  *       200:
  *         description: Product deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "Product removed successfully"
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       403:
+ *         description: Forbidden - User is not an admin
  *       404:
  *         description: Product not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Server Error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  */
-router.route("/:id").get(getProductById).put(updateProduct).delete(deleteProduct);
+// Public: Get product by ID
+router.get("/:id", getProductById);
+
+// Protected: Update product (admin only)
+router.put("/:id", protect, authorize("admin"), updateProduct);
+
+// Protected: Delete product (admin only)
+router.delete("/:id", protect, authorize("admin"), deleteProduct);
 
 export default router;
+
