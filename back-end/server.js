@@ -7,6 +7,7 @@ import swaggerSpec from "./config/swagger.js"; // Import Swagger config
 
 // Import routes
 import productRoutes from "./routes/productRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 }));
 
 // API Routes
+app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 
 app.get("/api/health", (req, res) => {
