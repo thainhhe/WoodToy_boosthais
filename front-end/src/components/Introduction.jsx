@@ -7,10 +7,7 @@ const useOnScreen = (options) => {
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setIsVisible(true);
-        observer.unobserve(entry.target);
-      }
+      setIsVisible(entry.isIntersecting);
     }, options);
 
     if (ref.current) {
@@ -51,7 +48,9 @@ export default function Introduction() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Cột bên trái */}
           <div
-            className={`space-y-6 ${isVisible ? "animate-fade-in-up" : ""}`}
+            className={`space-y-6 ${
+              isVisible ? "animate-fade-in-up animate-float" : ""
+            }`}
             style={{ animationDelay: "0.2s" }}
           >
             <p className="text-brand-text leading-relaxed">
@@ -62,26 +61,24 @@ export default function Introduction() {
               khám phá thế giới thông qua trải nghiệm tương tác trực quan, dễ
               hiểu và giàu cảm xúc.
             </p>
-            <div className="p-1 border-2 border-brand-secondary/50 rounded-2xl relative">
-              <div className="absolute top-2 left-2 w-5 h-5 bg-brand-secondary rounded-sm"></div>
-              <div className="absolute bottom-2 right-2 w-5 h-5 bg-brand-secondary rounded-sm"></div>
-              <img
-                src="/wooden-house-puzzle.jpg"
-                alt="Đồ chơi nhà gỗ"
-                className="rounded-xl w-full"
-              />
-            </div>
+            <img
+              src="/wooden-house-puzzle.jpg"
+              alt="Đồ chơi nhà gỗ"
+              className="rounded-xl w-3/4 max-w-xs mx-auto"
+            />
           </div>
 
           {/* Cột bên phải */}
           <div
-            className={`space-y-6 ${isVisible ? "animate-fade-in-up" : ""}`}
+            className={`space-y-6 ${
+              isVisible ? "animate-fade-in-up animate-float" : ""
+            }`}
             style={{ animationDelay: "0.4s" }}
           >
             <img
               src="/wooden-animal-puzzle.jpg"
               alt="Đồ chơi thú gỗ"
-              className="rounded-xl w-full shadow-lg mb-6"
+              className="rounded-xl w-3/4 max-w-xs mx-auto shadow-lg mb-6"
             />
             <p className="text-brand-text leading-relaxed">
               Với nội dung được kiểm duyệt kỹ lưỡng và thiết kế thẩm mỹ cao, bộ
