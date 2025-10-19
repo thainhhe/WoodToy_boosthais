@@ -7,6 +7,9 @@ import swaggerSpec from "./config/swagger.js"; // Import Swagger config
 
 // Import routes
 import productRoutes from "./routes/productRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 
 dotenv.config();
 
@@ -29,7 +32,10 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 }));
 
 // API Routes
+app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "Backend is running and connected to Atlas!" });
