@@ -26,10 +26,14 @@ app.use(express.urlencoded({ extended: true }));
 // 3. Loại bỏ đoạn code mongoose.connect() cũ ở đây
 
 // Swagger Documentation
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: "Wooden Toys API Docs"
-}));
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "Wooden Toys API Docs",
+  })
+);
 
 // API Routes
 app.use("/api/auth", authRoutes);
@@ -52,7 +56,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Something went wrong!" });
 });
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

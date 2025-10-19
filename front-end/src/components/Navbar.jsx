@@ -1,15 +1,18 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import useAuthStore from "../store/authStore";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-
   const menuItems = [
     { name: "Trang chủ", href: "/" },
     { name: "Về chúng tôi", href: "#about" },
     { name: "Sản phẩm", href: "#products" },
     { name: "Đội ngũ", href: "#team" },
   ];
+  const user = useAuthStore((state) => state.user);
+  console.log("Navbar user:", user);
+  const logout = useAuthStore((state) => state.logout);
 
   return (
     <nav className="bg-white/80 backdrop-blur-md shadow-md sticky top-0 z-50">
@@ -33,10 +36,46 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center space-x-4">
             <button className="bg-brand-secondary text-white font-bold py-2 px-6 rounded-full hover:bg-opacity-90 transition duration-300">
               Khám Phá
             </button>
+            {!user ? (
+              <>
+                <Link
+                  to="/login"
+                  className="font-bold text-brand-secondary px-4 py-2 hover:underline"
+                >
+                  Đăng nhập
+                </Link>
+                <Link
+                  to="/register"
+                  className="font-bold text-brand-secondary px-4 py-2 hover:underline"
+                >
+                  Đăng ký
+                </Link>
+              </>
+            ) : (
+              <>
+                {user.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-8 h-8 rounded-full mr-2"
+                  />
+                ) : (
+                  <span className="font-bold text-brand-primary">
+                    {user.name}
+                  </span>
+                )}
+                <button
+                  onClick={logout}
+                  className="font-bold text-red-500 px-4 py-2 hover:underline"
+                >
+                  Đăng xuất
+                </button>
+              </>
+            )}
           </div>
 
           <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
@@ -70,6 +109,34 @@ export default function Navbar() {
             <button className="w-full mt-2 bg-brand-secondary text-white font-bold py-2 px-6 rounded-full hover:bg-opacity-90 transition duration-300">
               Khám Phá
             </button>
+            {!user ? (
+              <>
+                <Link
+                  to="/login"
+                  className="block w-full text-center font-bold text-brand-secondary py-2 hover:underline"
+                >
+                  Đăng nhập
+                </Link>
+                <Link
+                  to="/register"
+                  className="block w-full text-center font-bold text-brand-secondary py-2 hover:underline"
+                >
+                  Đăng ký
+                </Link>
+              </>
+            ) : (
+              <>
+                <span className="block w-full text-center font-bold text-brand-primary py-2">
+                  {user.name}
+                </span>
+                <button
+                  onClick={logout}
+                  className="block w-full text-center font-bold text-red-500 py-2 hover:underline"
+                >
+                  Đăng xuất
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>

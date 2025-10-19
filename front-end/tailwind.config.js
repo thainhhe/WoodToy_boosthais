@@ -24,9 +24,23 @@ export default {
             transform: "translateY(0)",
           },
         },
+        // Animation cho hiệu ứng trôi nổi
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
       },
       animation: {
         "fade-in-up": "fade-in-up 0.8s ease-out forwards",
+        // Áp dụng animation trôi nổi
+        float: "float 4s ease-in-out infinite",
+      },
+      // Thêm hiệu ứng drop shadow để tạo glow
+      dropShadow: {
+        glow: [
+          "0 0 8px rgba(255, 255, 255, 0.7)",
+          "0 0 15px rgba(255, 255, 255, 0.5)",
+        ],
       },
     },
   },
