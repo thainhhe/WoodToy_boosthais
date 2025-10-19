@@ -56,9 +56,15 @@ import {
  *                 example: "Wooden Car Puzzle"
  *               description:
  *                 type: string
+ *                 maxLength: 2000
  *                 example: "A fun wooden car puzzle for kids"
+ *               story:
+ *                 type: string
+ *                 maxLength: 5000
+ *                 example: "Each piece is handcrafted with love and care by local artisans"
  *               price:
  *                 type: number
+ *                 minimum: 0
  *                 example: 24.99
  *               image:
  *                 type: string
@@ -149,9 +155,15 @@ router.route("/").get(getProducts).post(createProduct);
  *                 example: "Updated Wooden Puzzle"
  *               description:
  *                 type: string
+ *                 maxLength: 2000
  *                 example: "An updated description"
+ *               story:
+ *                 type: string
+ *                 maxLength: 5000
+ *                 example: "Updated story about the product's craftsmanship"
  *               price:
  *                 type: number
+ *                 minimum: 0
  *                 example: 34.99
  *               image:
  *                 type: string

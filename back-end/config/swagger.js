@@ -43,16 +43,25 @@ const options = {
             name: {
               type: "string",
               description: "Product name",
+              maxLength: 200,
               example: "Wooden Animal Puzzle",
             },
             description: {
               type: "string",
               description: "Product description",
+              maxLength: 2000,
               example: "A beautiful handcrafted wooden puzzle for children",
+            },
+            story: {
+              type: "string",
+              description: "Product story/history",
+              maxLength: 5000,
+              example: "Handcrafted by local artisans using sustainable wood from responsibly managed forests. Each piece is unique and tells a story of traditional craftsmanship passed down through generations.",
             },
             price: {
               type: "number",
               description: "Product price in USD",
+              minimum: 0,
               example: 29.99,
             },
             image: {
@@ -63,11 +72,13 @@ const options = {
             category: {
               type: "string",
               description: "Product category",
+              maxLength: 100,
               example: "Puzzles",
             },
             stock: {
               type: "number",
               description: "Available stock quantity",
+              minimum: 0,
               example: 50,
             },
             createdAt: {

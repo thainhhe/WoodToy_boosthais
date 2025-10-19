@@ -131,6 +131,7 @@ export const register = async (req, res) => {
       ipAddress
     );
 
+
     res.status(201).json({
       success: true,
       message: "User registered successfully",
@@ -151,6 +152,25 @@ export const register = async (req, res) => {
     });
   } catch (error) {
     console.error("Register error:", error);
+    
+    // Handle Mongoose validation errors
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: errors,
+      });
+    }
+    
+    // Handle duplicate key error (MongoDB) - email already exists
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "User with this email already exists",
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: "Error registering user",
@@ -427,6 +447,15 @@ export const getMe = async (req, res) => {
     });
   } catch (error) {
     console.error("Get me error:", error);
+    
+    // Handle invalid ObjectId (CastError)
+    if (error.name === "CastError") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID format",
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: "Error fetching user profile",
@@ -536,6 +565,25 @@ export const updateProfile = async (req, res) => {
     });
   } catch (error) {
     console.error("Update profile error:", error);
+    
+    // Handle Mongoose validation errors
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: errors,
+      });
+    }
+    
+    // Handle duplicate key error (MongoDB) - email already exists
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already in use",
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: "Error updating profile",
@@ -599,6 +647,17 @@ export const changePassword = async (req, res) => {
     });
   } catch (error) {
     console.error("Change password error:", error);
+    
+    // Handle Mongoose validation errors
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: errors,
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: "Error changing password",
@@ -722,6 +781,25 @@ export const googleAuth = async (req, res) => {
     });
   } catch (error) {
     console.error("Google auth error:", error);
+    
+    // Handle Mongoose validation errors
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: "Validation failed",
+        errors: errors,
+      });
+    }
+    
+    // Handle duplicate key error (MongoDB)
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "Account with this Google ID already exists",
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: "Error authenticating with Google",
@@ -806,6 +884,15 @@ export const updateUserStatus = async (req, res) => {
     });
   } catch (error) {
     console.error("Update user status error:", error);
+    
+    // Handle invalid ObjectId (CastError)
+    if (error.name === "CastError") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID format",
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: "Error updating user status",
