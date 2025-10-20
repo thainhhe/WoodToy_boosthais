@@ -6,6 +6,11 @@ import {
   revokeAllUserTokens,
 } from "../utils/tokenUtils.js";
 import { verifyGoogleToken } from "../utils/googleAuth.js";
+import {
+  uploadImage,
+  deleteMedia,
+  extractPublicId,
+} from "../utils/uploadUtils.js";
 
 // Get client IP address
 const getIpAddress = (req) => {
@@ -469,7 +474,7 @@ export const getMe = async (req, res) => {
 // @access  Private
 export const updateProfile = async (req, res) => {
   try {
-    const { name, email, phoneNumber, gender, address } = req.body;
+    const { name, email, phoneNumber, gender, address, removeAvatar } = req.body;
 
     const user = await User.findById(req.user._id);
 
@@ -544,6 +549,47 @@ export const updateProfile = async (req, res) => {
       if (address.postalCode !== undefined) user.address.postalCode = address.postalCode;
     }
 
+    // Handle avatar removal
+    if (removeAvatar === "true" && user.avatar) {
+      // Delete old avatar from Cloudinary (if not Google avatar)
+      if (!user.avatar.includes("googleusercontent.com")) {
+        const publicId = extractPublicId(user.avatar);
+        if (publicId) {
+          await deleteMedia(publicId, "image");
+        }
+      }
+      user.avatar = undefined;
+    }
+
+    // Handle avatar upload
+    if (req.file) {
+      try {
+        // Delete old avatar from Cloudinary (if exists and not Google avatar)
+        if (user.avatar && !user.avatar.includes("googleusercontent.com")) {
+          const oldPublicId = extractPublicId(user.avatar);
+          if (oldPublicId) {
+            await deleteMedia(oldPublicId, "image");
+          }
+        }
+
+        // Upload new avatar
+        const uploadedAvatar = await uploadImage(req.file.buffer, "avatars", {
+          transformation: [
+            { width: 400, height: 400, crop: "fill", gravity: "face" }, // Square crop focused on face
+            { quality: "auto:good" },
+            { fetch_format: "auto" },
+          ],
+        });
+
+        user.avatar = uploadedAvatar.url;
+      } catch (uploadError) {
+        return res.status(400).json({
+          success: false,
+          message: `Failed to upload avatar: ${uploadError.message}`,
+        });
+      }
+    }
+
     await user.save({ validateModifiedOnly: true });
 
     res.status(200).json({
@@ -565,6 +611,11 @@ export const updateProfile = async (req, res) => {
     });
   } catch (error) {
     console.error("Update profile error:", error);
+    
+    // Clean up uploaded avatar on error
+    if (req.file && req.file.cloudinary_id) {
+      await deleteMedia(req.file.cloudinary_id, "image");
+    }
     
     // Handle Mongoose validation errors
     if (error.name === "ValidationError") {

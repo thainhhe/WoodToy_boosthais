@@ -94,6 +94,17 @@ export const uploadProductMedia = multer({
 ]);
 
 /**
+ * Upload single avatar image for user profile
+ */
+export const uploadAvatar = multer({
+  storage,
+  fileFilter: imageFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB for avatar
+  },
+}).single("avatar"); // Field name 'avatar'
+
+/**
  * Error handler middleware for multer errors
  */
 export const handleMulterError = (err, req, res, next) => {

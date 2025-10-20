@@ -62,7 +62,7 @@ export const createOrder = async (req, res) => {
       orderItems.push({
         product: product._id,
         name: product.name,
-        image: product.image,
+        image: product.primaryImage || product.image || (product.images && product.images[0]?.url),
         category: product.category,
         price: product.price,
         quantity: item.quantity,
@@ -139,7 +139,7 @@ export const getUserOrders = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip((page - 1) * limit)
-      .populate("items.product", "name image");
+      .populate("items.product", "name image images video");
 
     return sendPaginated(
       res,
@@ -162,7 +162,7 @@ export const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
       .populate("user", "name email phoneNumber")
-      .populate("items.product", "name description image category");
+      .populate("items.product", "name description image images video category");
 
     if (!order) {
       return sendNotFound(res, "Order not found");
@@ -375,7 +375,7 @@ export const getAllOrders = async (req, res) => {
       .limit(limit)
       .skip((page - 1) * limit)
       .populate("user", "name email phoneNumber")
-      .populate("items.product", "name image");
+      .populate("items.product", "name image images video");
 
     return sendPaginated(
       res,
