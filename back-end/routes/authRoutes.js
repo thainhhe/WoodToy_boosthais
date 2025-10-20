@@ -15,6 +15,7 @@ import {
   resetPassword,
 } from "../controllers/authController.js";
 import { protect, authorize } from "../middleware/authMiddleware.js";
+import { uploadAvatar, handleMulterError } from "../middleware/uploadMiddleware.js";
 
 /**
  * @swagger
@@ -356,15 +357,15 @@ router.post("/logout-all", protect, logoutAll);
  *       500:
  *         description: Server error
  *   put:
- *     summary: Update user profile
- *     description: Update the authenticated user's profile (name, email)
+ *     summary: Update user profile with avatar upload
+ *     description: Update the authenticated user's profile including avatar image
  *     tags: [Authentication]
  *     security:
  *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -382,13 +383,21 @@ router.post("/logout-all", protect, logoutAll);
  *               phoneNumber:
  *                 type: string
  *                 pattern: "^(\\+84|0)[3|5|7|8|9][0-9]{8}$"
- *                 description: "Vietnamese phone number (e.g., 0912345678 or +84912345678)"
+ *                 description: "Vietnamese phone number"
  *                 example: "0912345678"
  *               gender:
  *                 type: string
  *                 enum: [male, female, other]
  *                 description: "User gender"
  *                 example: "male"
+ *               avatar:
+ *                 type: string
+ *                 format: binary
+ *                 description: "Profile picture (max 5MB, JPEG/PNG/WebP)"
+ *               removeAvatar:
+ *                 type: string
+ *                 enum: ["true", "false"]
+ *                 description: "Set to 'true' to remove current avatar"
  *               address:
  *                 type: object
  *                 properties:
@@ -414,13 +423,15 @@ router.post("/logout-all", protect, logoutAll);
  *       200:
  *         description: Profile updated successfully
  *       400:
- *         description: Bad request - Email already in use
+ *         description: Bad request - Email already in use or invalid avatar
  *       401:
  *         description: Unauthorized - Invalid or missing token
  *       500:
  *         description: Server error
  */
-router.route("/me").get(protect, getMe).put(protect, updateProfile);
+router.route("/me")
+  .get(protect, getMe)
+  .put(protect, uploadAvatar, handleMulterError, updateProfile);
 
 /**
  * @swagger

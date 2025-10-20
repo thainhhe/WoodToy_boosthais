@@ -16,7 +16,7 @@ export const getCart = async (req, res) => {
   try {
     let cart = await Cart.findOne({ user: req.user._id }).populate(
       "items.product",
-      "name description price image category stock"
+      "name description price image images video category stock"
     );
 
     // Create empty cart if not exists
@@ -96,7 +96,7 @@ export const addToCart = async (req, res) => {
         price: product.price,
         productSnapshot: {
           name: product.name,
-          image: product.image,
+          image: product.primaryImage || product.image || (product.images && product.images[0]?.url),
           category: product.category,
         },
       });
@@ -105,7 +105,7 @@ export const addToCart = async (req, res) => {
     await cart.save();
     
     // Populate before sending response
-    await cart.populate("items.product", "name description price image category stock");
+    await cart.populate("items.product", "name description price image images video category stock");
 
     return sendSuccess(
       res,
@@ -159,7 +159,7 @@ export const updateCartItem = async (req, res) => {
     cart.items[itemIndex].price = product.price; // Update price in case it changed
 
     await cart.save();
-    await cart.populate("items.product", "name description price image category stock");
+    await cart.populate("items.product", "name description price image images video category stock");
 
     return sendSuccess(
       res,
@@ -194,7 +194,7 @@ export const removeFromCart = async (req, res) => {
 
     cart.items.splice(itemIndex, 1);
     await cart.save();
-    await cart.populate("items.product", "name description price image category stock");
+    await cart.populate("items.product", "name description price image images video category stock");
 
     return sendSuccess(
       res,

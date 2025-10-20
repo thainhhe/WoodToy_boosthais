@@ -93,20 +93,21 @@ export default function Products() {
               <div className="w-full flex justify-center gap-4 md:gap-8 lg:gap-12 overflow-x-hidden relative h-[420px]">
                 {visible.map((idx, i) => {
                   const product = products[idx];
+                  if (!product) return null;
                   const isActive = idx === current;
                   const pos = i - 2;
 
-                  // **LOGIC TÌM ẢNH CHÍNH**
                   const primaryImage = product.images?.find(
                     (img) => img.isPrimary
                   ) ||
                     product.images?.[0] || {
                       url: product.image || "/placeholder.jpg",
-                    }; // Fallback tới trường image cũ hoặc placeholder
+                    };
 
                   return (
                     <div
-                      key={product._id}
+                      // **SỬA LỖI: Key đã được làm duy nhất**
+                      key={`${product._id}-${i}`}
                       className={`absolute left-1/2 top-1/2 -translate-y-1/2 transition-all duration-700 ease-in-out flex flex-col items-center rounded-2xl border-2 shadow-xl group ${
                         isActive
                           ? "bg-white border-amber-400 scale-110 z-20 opacity-100"
