@@ -56,19 +56,19 @@ export default function ProductDetail() {
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-2 lg:gap-x-8">
           {/* Media gallery */}
           <div className="flex flex-col items-center">
-            <div className="w-full aspect-w-1 aspect-h-1 rounded-lg overflow-hidden border">
+            <div className="w-full max-h-[550px] aspect-w-1 aspect-h-1 rounded-lg overflow-hidden border bg-gray-50 flex items-center justify-center">
               {selectedMedia?.type === "image" ? (
                 <img
                   src={selectedMedia.url}
                   alt={selectedMedia.alt || product.name}
-                  className="w-full h-full object-center object-cover"
+                  className="w-full h-full object-center object-contain"
                 />
               ) : (
                 <video
                   src={selectedMedia?.url}
                   controls
                   poster={selectedMedia?.thumbnail}
-                  className="w-full h-full object-center object-cover"
+                  className="w-full h-full object-center object-contain"
                 />
               )}
             </div>
