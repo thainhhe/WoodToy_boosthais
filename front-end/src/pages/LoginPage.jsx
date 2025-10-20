@@ -15,9 +15,16 @@ export default function LoginPage() {
     setError("");
     try {
       const res = await login(email, password);
-      console.log("Login API response:", res.data);
-      setUser(res.data.data.user);
-      navigate("/");
+      const user = res.data.data.user; // Lấy thông tin user từ response
+
+      setUser(user); // Lưu thông tin user vào store
+
+      // **MỚI: Kiểm tra role và điều hướng tương ứng**
+      if (user.role === "admin") {
+        navigate("/admin"); // Chuyển đến trang dashboard của admin
+      } else {
+        navigate("/"); // Chuyển đến trang chủ cho user thông thường
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Đăng nhập thất bại");
     }
