@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import swaggerUi from "swagger-ui-express";
 import connectDB from "./config/db.js"; // 1. Import hàm kết nối DB
 import swaggerSpec from "./config/swagger.js"; // Import Swagger config
+import { validateCloudinaryConfig } from "./config/cloudinary.js"; // Import Cloudinary validation
 
 // Import routes
 import productRoutes from "./routes/productRoutes.js";
@@ -15,6 +16,9 @@ dotenv.config();
 
 // 2. Gọi hàm để kết nối đến MongoDB Atlas
 connectDB();
+
+// 3. Validate Cloudinary configuration
+validateCloudinaryConfig();
 
 const app = express();
 

@@ -1,17 +1,20 @@
+// front-end/src/components/Products.jsx
+
 import { useState, useEffect } from "react";
-import { getProducts } from "../service/api"; // Import hàm getProducts
+import { useNavigate } from "react-router-dom";
+import { getProducts } from "../service/api";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [current, setCurrent] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const res = await getProducts();
-        // Lấy 10 sản phẩm đầu tiên nếu có nhiều hơn
         setProducts(res.data.data.products.slice(0, 10));
       } catch (err) {
         setError("Không thể tải danh sách sản phẩm.");
@@ -26,14 +29,16 @@ export default function Products() {
 
   const total = products.length;
 
-  const goTo = (idx) => {
-    setCurrent(idx);
-  };
-  const prev = () => {
-    setCurrent((prev) => (prev === 0 ? total - 1 : prev - 1));
-  };
-  const next = () => {
-    setCurrent((prev) => (prev === total - 1 ? 0 : prev + 1));
+  const goTo = (idx) => setCurrent(idx);
+  const prev = () => setCurrent((prev) => (prev === 0 ? total - 1 : prev - 1));
+  const next = () => setCurrent((prev) => (prev === total - 1 ? 0 : prev + 1));
+
+  const handleCardClick = (idx, productId) => {
+    if (idx === current) {
+      navigate(`/products/${productId}`);
+    } else {
+      goTo(idx);
+    }
   };
 
   const getVisibleProducts = () => {
@@ -90,16 +95,23 @@ export default function Products() {
                   const product = products[idx];
                   const isActive = idx === current;
                   const pos = i - 2;
+
+                  // **LOGIC TÌM ẢNH CHÍNH**
+                  const primaryImage = product.images?.find(
+                    (img) => img.isPrimary
+                  ) ||
+                    product.images?.[0] || {
+                      url: product.image || "/placeholder.jpg",
+                    }; // Fallback tới trường image cũ hoặc placeholder
+
                   return (
                     <div
-                      key={product._id} // Sử dụng _id từ MongoDB
-                      className={`absolute left-1/2 top-1/2 -translate-y-1/2 transition-all duration-700 ease-in-out flex flex-col items-center rounded-2xl border-2 shadow-xl group
-                        ${
-                          isActive
-                            ? "bg-white border-amber-400 scale-110 z-20 opacity-100"
-                            : "bg-white border-amber-100 opacity-40 scale-95 z-10"
-                        }
-                        p-4 md:p-6 lg:p-8 max-w-xs w-full cursor-pointer`}
+                      key={product._id}
+                      className={`absolute left-1/2 top-1/2 -translate-y-1/2 transition-all duration-700 ease-in-out flex flex-col items-center rounded-2xl border-2 shadow-xl group ${
+                        isActive
+                          ? "bg-white border-amber-400 scale-110 z-20 opacity-100"
+                          : "bg-white border-amber-100 opacity-40 scale-95 z-10"
+                      } p-4 md:p-6 lg:p-8 max-w-xs w-full cursor-pointer`}
                       style={{
                         minHeight: 380,
                         boxShadow: isActive
@@ -111,7 +123,7 @@ export default function Products() {
                         transition:
                           "transform 0.7s cubic-bezier(.4,0,.2,1), opacity 0.7s cubic-bezier(.4,0,.2,1)",
                       }}
-                      onClick={() => goTo(idx)}
+                      onClick={() => handleCardClick(idx, product._id)}
                     >
                       <div
                         className={`text-brand-secondary font-extrabold mb-2 drop-shadow-lg transition-all ${
@@ -131,7 +143,7 @@ export default function Products() {
                           }`}
                         >
                           <img
-                            src={product.image || "/placeholder.jpg"} // Sử dụng ảnh placeholder nếu không có
+                            src={primaryImage.url}
                             alt={product.name}
                             className={`object-contain ${
                               isActive ? "w-36 h-36" : "w-20 h-20"

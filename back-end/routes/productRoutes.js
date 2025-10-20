@@ -6,13 +6,17 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  uploadProductImages,
+  deleteProductImage,
+  setPrimaryImage,
 } from "../controllers/productController.js";
+import { uploadProductMedia, uploadImages, handleMulterError } from "../middleware/uploadMiddleware.js";
 
 /**
  * @swagger
  * tags:
  *   name: Products
- *   description: Product management endpoints
+ *   description: Product management endpoints with image and video upload
  */
 
 /**
@@ -28,23 +32,31 @@ import {
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Product'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     products:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Product'
+ *                     count:
+ *                       type: number
  *       500:
  *         description: Server Error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *   post:
- *     summary: Create a new product
- *     description: Add a new product to the database
+ *     summary: Create a new product with images and video
+ *     description: Add a new product with multiple images (max 10) and one video
  *     tags: [Products]
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -61,41 +73,38 @@ import {
  *               story:
  *                 type: string
  *                 maxLength: 5000
- *                 example: "Each piece is handcrafted with love and care by local artisans"
+ *                 example: "Each piece is handcrafted with love"
  *               price:
  *                 type: number
  *                 minimum: 0
  *                 example: 24.99
- *               image:
- *                 type: string
- *                 example: "wooden-car-puzzle.jpg"
  *               category:
  *                 type: string
  *                 example: "Vehicles"
  *               stock:
  *                 type: number
  *                 example: 30
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: "Product images (max 10, each max 10MB)"
+ *               video:
+ *                 type: string
+ *                 format: binary
+ *                 description: "Product video (max 100MB)"
  *     responses:
  *       201:
  *         description: Product created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Product'
  *       400:
- *         description: Bad request - Missing required fields
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         description: Bad request - Missing required fields or invalid files
  *       500:
  *         description: Server Error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  */
-router.route("/").get(getProducts).post(createProduct);
+router.route("/")
+  .get(getProducts)
+  .post(uploadProductMedia, handleMulterError, createProduct);
 
 /**
  * @swagger
@@ -115,25 +124,13 @@ router.route("/").get(getProducts).post(createProduct);
  *     responses:
  *       200:
  *         description: Product found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Product'
  *       404:
  *         description: Product not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Server Error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *   put:
  *     summary: Update a product
- *     description: Update an existing product by its MongoDB ID
+ *     description: Update an existing product with optional new images/video
  *     tags: [Products]
  *     parameters:
  *       - in: path
@@ -142,60 +139,53 @@ router.route("/").get(getProducts).post(createProduct);
  *         schema:
  *           type: string
  *         description: The MongoDB ID of the product
- *         example: 507f1f77bcf86cd799439011
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               name:
  *                 type: string
- *                 example: "Updated Wooden Puzzle"
  *               description:
  *                 type: string
- *                 maxLength: 2000
- *                 example: "An updated description"
  *               story:
  *                 type: string
- *                 maxLength: 5000
- *                 example: "Updated story about the product's craftsmanship"
  *               price:
  *                 type: number
- *                 minimum: 0
- *                 example: 34.99
- *               image:
- *                 type: string
- *                 example: "updated-image.jpg"
  *               category:
  *                 type: string
- *                 example: "Educational"
  *               stock:
  *                 type: number
- *                 example: 45
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: "New images to add"
+ *               video:
+ *                 type: string
+ *                 format: binary
+ *                 description: "New video (replaces existing)"
+ *               deletedImages:
+ *                 type: string
+ *                 description: "JSON array of publicIds to delete"
+ *                 example: '["woodtoy/products/abc123"]'
+ *               deleteVideo:
+ *                 type: string
+ *                 enum: ["true", "false"]
+ *                 description: "Set to 'true' to delete video"
  *     responses:
  *       200:
  *         description: Product updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Product'
  *       404:
  *         description: Product not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Server Error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *   delete:
  *     summary: Delete a product
- *     description: Remove a product from the database by its MongoDB ID
+ *     description: Remove a product and all its media from database and Cloudinary
  *     tags: [Products]
  *     parameters:
  *       - in: path
@@ -204,31 +194,109 @@ router.route("/").get(getProducts).post(createProduct);
  *         schema:
  *           type: string
  *         description: The MongoDB ID of the product
- *         example: 507f1f77bcf86cd799439011
  *     responses:
  *       200:
  *         description: Product deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "Product removed successfully"
  *       404:
  *         description: Product not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Server Error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  */
-router.route("/:id").get(getProductById).put(updateProduct).delete(deleteProduct);
+router.route("/:id")
+  .get(getProductById)
+  .put(uploadProductMedia, handleMulterError, updateProduct)
+  .delete(deleteProduct);
+
+/**
+ * @swagger
+ * /api/products/{id}/images:
+ *   post:
+ *     summary: Add images to existing product
+ *     description: Upload additional images to a product (max 10 total)
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - images
+ *             properties:
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *     responses:
+ *       200:
+ *         description: Images uploaded successfully
+ *       400:
+ *         description: No images provided or limit exceeded
+ *       404:
+ *         description: Product not found
+ */
+router.post("/:id/images", uploadImages, handleMulterError, uploadProductImages);
+
+/**
+ * @swagger
+ * /api/products/{id}/images/{publicId}:
+ *   delete:
+ *     summary: Delete a specific image
+ *     description: Remove a specific image from product and Cloudinary
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Product ID
+ *       - in: path
+ *         name: publicId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Cloudinary public ID (URL encode if contains slashes)
+ *         example: "woodtoy/products/abc123"
+ *     responses:
+ *       200:
+ *         description: Image deleted successfully
+ *       404:
+ *         description: Product or image not found
+ */
+router.delete("/:id/images/:publicId(*)", deleteProductImage);
+
+/**
+ * @swagger
+ * /api/products/{id}/images/{publicId}/primary:
+ *   put:
+ *     summary: Set primary image
+ *     description: Set a specific image as the primary/featured image
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: publicId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Primary image updated successfully
+ *       404:
+ *         description: Product or image not found
+ */
+router.put("/:id/images/:publicId(*)/primary", setPrimaryImage);
 
 export default router;

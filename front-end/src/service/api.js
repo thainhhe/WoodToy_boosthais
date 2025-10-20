@@ -19,3 +19,8 @@ export const googleAuth = async (token) => {
 export const getProducts = async () => {
   return axios.get(`${API_URL}/products`);
 };
+
+// MỚI: Thêm hàm lấy sản phẩm theo ID
+export const getProductById = async (id) => {
+  return axios.get(`${API_URL}/products/${id}`);
+};
