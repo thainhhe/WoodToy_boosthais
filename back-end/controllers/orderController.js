@@ -76,9 +76,16 @@ export const createOrder = async (req, res) => {
     // Calculate total
     const total = subtotal + shippingFee + tax - discount;
 
+    // Generate order number
+    const count = await Order.countDocuments();
+    const date = new Date();
+    const dateStr = date.toISOString().slice(0, 10).replace(/-/g, "");
+    const orderNumber = `ORD${dateStr}${String(count + 1).padStart(5, "0")}`;
+
     // Create order
     const order = await Order.create({
       user: req.user._id,
+      orderNumber,
       items: orderItems,
       subtotal,
       shippingFee,
