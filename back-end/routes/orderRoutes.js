@@ -52,9 +52,6 @@ import { protect, authorize } from "../middleware/authMiddleware.js";
  *         country:
  *           type: string
  *           default: "Vietnam"
- *         postalCode:
- *           type: string
- *           example: "700000"
  *     OrderItem:
  *       type: object
  *       properties:
@@ -87,8 +84,6 @@ import { protect, authorize } from "../middleware/authMiddleware.js";
  *           items:
  *             $ref: '#/components/schemas/OrderItem'
  *         subtotal:
- *           type: number
- *         shippingFee:
  *           type: number
  *         tax:
  *           type: number
@@ -143,11 +138,6 @@ import { protect, authorize } from "../middleware/authMiddleware.js";
  *                 type: string
  *                 maxLength: 500
  *                 example: "Please call before delivery"
- *               shippingFee:
- *                 type: number
- *                 minimum: 0
- *                 default: 0
- *                 example: 30000
  *               discount:
  *                 type: number
  *                 minimum: 0

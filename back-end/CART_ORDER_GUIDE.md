@@ -100,7 +100,7 @@ Clear entire cart
 - ✅ Status history tracking
 - ✅ Auto stock management
 - ✅ Tax calculation (10%)
-- ✅ Shipping & discount support
+- ✅ Discount support
 
 ### Order Model
 ```javascript
@@ -117,7 +117,6 @@ Clear entire cart
   
   // Pricing
   subtotal: Number
-  shippingFee: Number (default: 0)
   tax: Number (10%)
   discount: Number (default: 0)
   total: Number
@@ -127,7 +126,6 @@ Clear entire cart
     fullName, phone (required)
     street, ward, district, city (required)
     country (default: Vietnam)
-    postalCode
   }
   
   // Payment
@@ -164,12 +162,10 @@ Create order from cart
       "ward": "Ben Nghe",
       "district": "District 1",
       "city": "Ho Chi Minh City",
-      "country": "Vietnam",
-      "postalCode": "700000"
+      "country": "Vietnam"
     },
     "paymentMethod": "COD",
     "notes": "Please call before delivery",
-    "shippingFee": 30000,
     "discount": 50000
   }
   ```
@@ -297,7 +293,7 @@ Alternative flows:
 ```javascript
 Subtotal = Sum of (item.price × item.quantity)
 Tax = Subtotal × 0.1 (10%)
-Total = Subtotal + ShippingFee + Tax - Discount
+Total = Subtotal + Tax - Discount
 ```
 
 ---
@@ -342,7 +338,8 @@ PUT /api/cart/items/xyz123
 POST /api/orders
 {
   "shippingAddress": {...},
-  "paymentMethod": "COD"
+  "paymentMethod": "COD",
+  "discount": 0
 }
 
 # 5. View order history

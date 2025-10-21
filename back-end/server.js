@@ -46,7 +46,10 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 
 app.get("/api/health", (req, res) => {
-  res.json({ status: "Backend is running and connected to Atlas!" });
+  res.json({ 
+    status: "Backend is running and connected to Atlas!",
+    googleClientId: process.env.GOOGLE_CLIENT_ID ? "✅ Configured" : "❌ Missing"
+  });
 });
 
 // Redirect root to API docs

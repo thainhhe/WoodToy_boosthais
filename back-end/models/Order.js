@@ -48,11 +48,6 @@ const orderSchema = new mongoose.Schema(
       required: [true, "Subtotal is required"],
       min: [0, "Subtotal cannot be negative"],
     },
-    shippingFee: {
-      type: Number,
-      default: 0,
-      min: [0, "Shipping fee cannot be negative"],
-    },
     tax: {
       type: Number,
       default: 0,
@@ -107,7 +102,6 @@ const orderSchema = new mongoose.Schema(
         default: "Vietnam",
         trim: true,
       },
-      postalCode: String,
     },
     
     // Payment
