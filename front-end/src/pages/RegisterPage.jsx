@@ -16,9 +16,14 @@ export default function RegisterPage() {
     setError("");
     try {
       const res = await register(name, email, password);
-      setUser(res.data.data.user);
+      const { user, accessToken, refreshToken } = res.data.data; // Lấy cả token
+
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
       navigate("/");
     } catch (err) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       setError(err.response?.data?.message || "Đăng ký thất bại");
     }
   };
@@ -62,9 +67,14 @@ export default function RegisterPage() {
     setError("");
     try {
       const res = await googleAuth(response.credential);
-      setUser(res.data.data.user);
+      const { user, accessToken, refreshToken } = res.data.data; // Lấy cả token
+
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
       navigate("/");
     } catch (err) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       setError(err.response?.data?.message || "Đăng ký bằng Google thất bại");
     }
   }

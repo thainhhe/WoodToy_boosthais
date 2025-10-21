@@ -15,8 +15,10 @@ export default function LoginPage() {
     setError("");
     try {
       const res = await login(email, password);
-      const user = res.data.data.user; // Lấy thông tin user từ response
+      const { user, accessToken, refreshToken } = res.data.data;
 
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
       setUser(user); // Lưu thông tin user vào store
 
       // **MỚI: Kiểm tra role và điều hướng tương ứng**
@@ -26,6 +28,8 @@ export default function LoginPage() {
         navigate("/"); // Chuyển đến trang chủ cho user thông thường
       }
     } catch (err) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       setError(err.response?.data?.message || "Đăng nhập thất bại");
     }
   };

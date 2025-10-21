@@ -1,15 +1,21 @@
 // front-end/src/pages/ProductDetail.jsx
 
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { getProductById } from "../service/api";
+import { useParams, useNavigate } from "react-router-dom";
+import { getProductById, addToCart } from "../service/api";
+import useAuthStore from "../store/authStore";
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const navigate = useNavigate(); // MỚI
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedMedia, setSelectedMedia] = useState(null);
+  const user = useAuthStore((state) => state.user);
+  const [isAdding, setIsAdding] = useState(false);
+  const [addCartMessage, setAddCartMessage] = useState({ type: "", text: "" });
+  const fetchCartCount = useAuthStore((state) => state.fetchCartCount);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -37,6 +43,54 @@ export default function ProductDetail() {
 
     fetchProduct();
   }, [id]);
+
+  // MỚI: Hàm xử lý khi nhấn nút "Thêm vào giỏ hàng"
+  const handleAddToCart = async () => {
+    if (!user) {
+      // Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
+      alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
+      navigate("/login");
+      return;
+    }
+
+    if (product.stock === 0) {
+      setAddCartMessage({ type: "error", text: "Sản phẩm đã hết hàng." });
+      return;
+    }
+
+    setIsAdding(true);
+    setAddCartMessage({ type: "", text: "" }); // Reset thông báo
+
+    try {
+      await addToCart(product._id, 1); // Thêm 1 sản phẩm
+      setAddCartMessage({
+        type: "success",
+        text: "Đã thêm sản phẩm vào giỏ hàng!",
+      });
+      fetchCartCount();
+      // Tùy chọn: Cập nhật số lượng trong giỏ hàng trên Navbar (sẽ làm ở bước sau)
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      // Xử lý lỗi cụ thể hơn dựa trên response từ API
+      if (err.response?.status === 401) {
+        alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+        // Có thể gọi hàm logout ở đây và chuyển hướng
+        navigate("/login");
+      } else if (err.message === "User not authenticated") {
+        alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
+        navigate("/login");
+      } else {
+        setAddCartMessage({
+          type: "error",
+          text: err.response?.data?.message || "Thêm vào giỏ hàng thất bại.",
+        });
+      }
+    } finally {
+      setIsAdding(false);
+      // Tự động ẩn thông báo sau vài giây
+      setTimeout(() => setAddCartMessage({ type: "", text: "" }), 3000);
+    }
+  };
 
   if (loading) return <div className="text-center py-20">Đang tải...</div>;
   if (error)
@@ -140,10 +194,30 @@ export default function ProductDetail() {
               </p>
             </div>
 
-            <div className="mt-10 flex">
-              <button className="max-w-xs flex-1 bg-amber-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-amber-700">
-                Thêm vào giỏ hàng
+            <div className="mt-10">
+              <button
+                onClick={handleAddToCart}
+                disabled={isAdding || product.stock === 0} // Disable nút khi đang thêm hoặc hết hàng
+                className={`max-w-xs flex-1 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white transition ${
+                  product.stock === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-amber-600 hover:bg-amber-700"
+                } ${isAdding ? "opacity-70 cursor-wait" : ""}`}
+              >
+                {isAdding ? "Đang thêm..." : "Thêm vào giỏ hàng"}
               </button>
+              {/* Hiển thị thông báo */}
+              {addCartMessage.text && (
+                <p
+                  className={`mt-4 text-sm font-medium ${
+                    addCartMessage.type === "success"
+                      ? "text-green-600"
+                      : "text-red-500"
+                  }`}
+                >
+                  {addCartMessage.text}
+                </p>
+              )}
             </div>
           </div>
         </div>

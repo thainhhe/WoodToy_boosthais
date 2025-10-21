@@ -65,3 +65,87 @@ export const getAllOrdersForAdmin = async () => {
     },
   });
 };
+
+export const addToCart = async (productId, quantity = 1) => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    throw new Error("User not authenticated"); // Hoặc xử lý chuyển hướng đăng nhập
+  }
+
+  return axios.post(
+    `${API_URL}/cart/items`,
+    { productId, quantity },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};
+
+// MỚI: Thêm hàm lấy giỏ hàng
+export const getCart = async () => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    return null;
+  }
+  try {
+    const response = await axios.get(`${API_URL}/cart`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data.data.cart; // Trả về thông tin giỏ hàng
+  } catch (error) {
+    // Xử lý lỗi, ví dụ token hết hạn (401)
+    if (error.response?.status === 401) {
+      console.error("Cart fetch failed: Unauthorized. Token might be expired.");
+      // Có thể xóa token cũ và yêu cầu đăng nhập lại
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+    } else {
+      console.error("Failed to fetch cart:", error);
+    }
+    return null; // Trả về null nếu có lỗi
+  }
+};
+
+// MỚI: Cập nhật số lượng item trong giỏ hàng
+export const updateCartItemQuantity = async (productId, quantity) => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) throw new Error("User not authenticated");
+  return axios.put(
+    `${API_URL}/cart/items/${productId}`,
+    { quantity },
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+};
+
+// MỚI: Xóa item khỏi giỏ hàng
+export const removeFromCart = async (productId) => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) throw new Error("User not authenticated");
+  return axios.delete(`${API_URL}/cart/items/${productId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+// --- Orders ---
+// MỚI: Tạo đơn hàng (checkout)
+export const createOrder = async (orderDetails) => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) throw new Error("User not authenticated");
+  return axios.post(`${API_URL}/orders`, orderDetails, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+// MỚI: Lấy lịch sử đơn hàng của user
+export const getUserOrders = async (page = 1, limit = 10) => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) throw new Error("User not authenticated");
+  return axios.get(`${API_URL}/orders`, {
+    headers: { Authorization: `Bearer ${token}` },
+    params: { page, limit }, // Thêm params cho phân trang
+  });
+};
