@@ -25,6 +25,7 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const fetchCartCount = useAuthStore((state) => state.fetchCartCount);
   const user = useAuthStore((state) => state.user); // Lấy thông tin user nếu cần
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("COD");
 
   // --- Fetch Cart ---
   useEffect(() => {
@@ -153,18 +154,16 @@ export default function CheckoutPage() {
         ward: wardName,
         district: districtName,
         city: provinceName,
-        // country: "Vietnam" // Mặc định trong API backend
       },
-      paymentMethod: "COD", // Tạm thời fix cứng COD
+      paymentMethod: selectedPaymentMethod === "QR" ? "Bank Transfer" : "COD", // Gửi lên API giá trị phù hợp
       notes: formData.notes,
-      // shippingFee, discount có thể thêm nếu cần
     };
 
     try {
       await createOrder(orderDetails);
       alert("Đặt hàng thành công!");
-      fetchCartCount(); // Cập nhật lại số lượng giỏ hàng trên navbar về 0
-      navigate("/"); // Chuyển về trang chủ (hoặc trang lịch sử đơn hàng)
+      fetchCartCount();
+      navigate("/");
     } catch (err) {
       console.error("Place order error:", err);
       setError(
@@ -358,23 +357,66 @@ export default function CheckoutPage() {
               ></textarea>
             </div>
 
-            {/* Mã QR và nút đặt hàng */}
+            {/* ---- START: CẬP NHẬT PHẦN THANH TOÁN ---- */}
             <div className="mt-6 border-t pt-6">
               <h2 className="text-lg font-medium text-gray-900 mb-4">
-                Thông tin thanh toán
+                Phương thức thanh toán
               </h2>
-              <p className="text-sm text-gray-600 mb-4">
-                Vui lòng quét mã QR dưới đây để thanh toán. Chúng tôi sẽ xác
-                nhận đơn hàng sau khi nhận được thanh toán của bạn (Hiện tại
-                đang sử dụng COD - Thanh toán khi nhận hàng).
-              </p>
-              <div className="flex flex-col items-center">
-                {/* ---- THAY ĐỔI ĐƯỜNG DẪN ĐẾN FILE QR CỦA BẠN ---- */}
-                <img
-                  src="/payment-qr-code.png" // Đảm bảo bạn có file này trong thư mục /public
-                  alt="Mã QR thanh toán"
-                  className="w-48 h-48 border rounded-md mb-4"
-                />
+              {/* Lựa chọn PTTT */}
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center">
+                  <input
+                    id="payment-cod"
+                    name="paymentMethod"
+                    type="radio"
+                    value="COD"
+                    checked={selectedPaymentMethod === "COD"}
+                    onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                    className="focus:ring-amber-500 h-4 w-4 text-amber-600 border-gray-300"
+                  />
+                  <label
+                    htmlFor="payment-cod"
+                    className="ml-3 block text-sm font-medium text-gray-700"
+                  >
+                    Thanh toán khi nhận hàng (COD)
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    id="payment-qr"
+                    name="paymentMethod"
+                    type="radio"
+                    value="QR"
+                    checked={selectedPaymentMethod === "QR"}
+                    onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                    className="focus:ring-amber-500 h-4 w-4 text-amber-600 border-gray-300"
+                  />
+                  <label
+                    htmlFor="payment-qr"
+                    className="ml-3 block text-sm font-medium text-gray-700"
+                  >
+                    Thanh toán bằng mã QR
+                  </label>
+                </div>
+              </div>
+
+              {/* Hiển thị QR nếu chọn PTTT là QR */}
+              {selectedPaymentMethod === "QR" && (
+                <div className="mb-6 p-4 border rounded-md bg-gray-50 flex flex-col items-center">
+                  <p className="text-sm text-gray-600 mb-3 text-center">
+                    Vui lòng quét mã QR dưới đây bằng ứng dụng ngân hàng của bạn
+                    để thanh toán.
+                  </p>
+                  <img
+                    src="/payment-qr-code.png" // Đảm bảo bạn có file này trong thư mục /public
+                    alt="Mã QR thanh toán"
+                    className="w-48 h-48 border rounded-md"
+                  />
+                </div>
+              )}
+
+              {/* Nút đặt hàng */}
+              <div className="flex justify-center">
                 <button
                   type="submit"
                   disabled={isPlacingOrder}
