@@ -35,6 +35,12 @@ export default function Navbar() {
   const cartItemCount = useAuthStore((state) => state.cartItemCount);
   const fetchCartCount = useAuthStore((state) => state.fetchCartCount);
 
+  // Debug: Log user state
+  useEffect(() => {
+    console.log("Navbar - User state:", user);
+    console.log("Navbar - Token in localStorage:", localStorage.getItem("accessToken"));
+  }, [user]);
+
   // Xử lý đóng dropdown khi click ra ngoài
   useEffect(() => {
     function handleClickOutside(event) {

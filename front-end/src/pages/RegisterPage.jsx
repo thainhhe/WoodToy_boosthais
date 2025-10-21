@@ -20,7 +20,14 @@ export default function RegisterPage() {
 
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
-      navigate("/");
+      setUser(user); // ✅ Lưu user vào store
+
+      // Kiểm tra role và điều hướng
+      if (user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
@@ -69,12 +76,29 @@ export default function RegisterPage() {
       const res = await googleAuth(response.credential);
       const { user, accessToken, refreshToken } = res.data.data; // Lấy cả token
 
+      // Lưu token trước
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
-      navigate("/");
+      
+      // Lưu user vào store (setUser sẽ tự động lưu vào localStorage)
+      setUser(user);
+
+      console.log("Google Auth Success - User:", user);
+      console.log("Google Auth Success - Token saved:", accessToken);
+
+      // Đợi một chút để đảm bảo state được cập nhật
+      setTimeout(() => {
+        // Kiểm tra role và điều hướng
+        if (user.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
+      }, 100);
     } catch (err) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
       setError(err.response?.data?.message || "Đăng ký bằng Google thất bại");
     }
   }

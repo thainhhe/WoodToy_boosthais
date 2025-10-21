@@ -8,15 +8,19 @@ const useAuthStore = create((set, get) => ({
   setUser: (user) => {
     set({ user });
     if (user) {
+      // Lưu user info vào localStorage để persist khi reload
+      localStorage.setItem("user", JSON.stringify(user));
       get().fetchCartCount(); // MỚI: Gọi fetch giỏ hàng khi user được set
     } else {
+      localStorage.removeItem("user");
       set({ cartItemCount: 0 }); // Reset count khi logout
     }
   },
   logout: () => {
-    // MỚI: Xóa token khi logout
+    // MỚI: Xóa token và user info khi logout
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
     set({ user: null, cartItemCount: 0 });
   },
   // MỚI: Action để lấy số lượng giỏ hàng từ API
@@ -35,14 +39,29 @@ const useAuthStore = create((set, get) => ({
   },
 }));
 
-// MỚI: Thử fetch cart count khi ứng dụng load lần đầu nếu đã có token
-// Điều này giúp giữ trạng thái giỏ hàng khi refresh trang
+// ✅ Restore user info và cart count khi ứng dụng load lần đầu
 const initialToken = localStorage.getItem("accessToken");
-if (initialToken) {
-  // Lấy thông tin user từ API /me (nếu có) hoặc chỉ fetch cart
-  // Tạm thời chỉ fetch cart
-  useAuthStore.getState().fetchCartCount();
-  // TODO: Nên có cơ chế fetch user info từ token khi reload trang
+const savedUser = localStorage.getItem("user");
+
+console.log("Auth Store Initialization:");
+console.log("Token exists:", !!initialToken);
+console.log("Saved user:", savedUser);
+
+if (initialToken && savedUser) {
+  try {
+    const user = JSON.parse(savedUser);
+    console.log("Restoring user:", user);
+    // Restore user vào state (không gọi setUser để tránh gọi fetchCartCount 2 lần)
+    useAuthStore.setState({ user });
+    // Fetch cart count
+    useAuthStore.getState().fetchCartCount();
+  } catch (error) {
+    console.error("Error restoring user:", error);
+    // Nếu parse lỗi, xóa user khỏi localStorage
+    localStorage.removeItem("user");
+  }
+} else {
+  console.log("No token or saved user found - user not restored");
 }
 
 export default useAuthStore;

@@ -44,8 +44,20 @@ export default function ProductDetail() {
     fetchProduct();
   }, [id]);
 
+  // Debug: Log user state when component mounts or user changes
+  useEffect(() => {
+    console.log("ProductDetail - User state:", user);
+    console.log("ProductDetail - User from localStorage:", localStorage.getItem("user"));
+    console.log("ProductDetail - Token from localStorage:", localStorage.getItem("accessToken"));
+  }, [user]);
+
   // MỚI: Hàm xử lý khi nhấn nút "Thêm vào giỏ hàng"
   const handleAddToCart = async () => {
+    // Debug: Kiểm tra user và token
+    const token = localStorage.getItem("accessToken");
+    console.log("User object:", user);
+    console.log("Token exists:", !!token);
+    
     if (!user) {
       // Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
       alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");

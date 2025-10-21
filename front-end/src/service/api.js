@@ -87,20 +87,23 @@ export const addToCart = async (productId, quantity = 1) => {
 export const getCart = async () => {
   const token = localStorage.getItem("accessToken");
   if (!token) {
+    console.log("getCart: No token found");
     return null;
   }
   try {
+    console.log("getCart: Fetching cart with token:", token.substring(0, 20) + "...");
     const response = await axios.get(`${API_URL}/cart`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+    console.log("getCart: Success", response.data);
     return response.data.data.cart; // Trả về thông tin giỏ hàng
   } catch (error) {
     // Xử lý lỗi, ví dụ token hết hạn (401)
     if (error.response?.status === 401) {
       console.error("Cart fetch failed: Unauthorized. Token might be expired.");
-      // Có thể xóa token cũ và yêu cầu đăng nhập lại
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      // ⚠️ KHÔNG xóa token ở đây vì có thể là cart chưa được tạo
+      // localStorage.removeItem("accessToken");
+      // localStorage.removeItem("refreshToken");
     } else {
       console.error("Failed to fetch cart:", error);
     }
