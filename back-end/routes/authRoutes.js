@@ -10,6 +10,7 @@ import {
   updateProfile,
   changePassword,
   googleAuth,
+  getAllUsers,
   updateUserStatus,
   forgotPassword,
   resetPassword,
@@ -474,6 +475,101 @@ router.route("/me")
  *         description: Server error
  */
 router.put("/change-password", protect, changePassword);
+
+/**
+ * @swagger
+ * /api/auth/users:
+ *   get:
+ *     summary: Get all users (Admin only)
+ *     description: Retrieve a paginated list of all users with optional filtering
+ *     tags: [Authentication]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Number of items per page
+ *         example: 20
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [user, admin]
+ *         description: Filter by user role
+ *         example: user
+ *       - in: query
+ *         name: isActive
+ *         schema:
+ *           type: string
+ *           enum: ["true", "false"]
+ *         description: Filter by active status
+ *         example: "true"
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by name or email
+ *         example: "john"
+ *     responses:
+ *       200:
+ *         description: Users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Users retrieved successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     users:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/User'
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         currentPage:
+ *                           type: integer
+ *                           example: 1
+ *                         totalPages:
+ *                           type: integer
+ *                           example: 5
+ *                         pageSize:
+ *                           type: integer
+ *                           example: 20
+ *                         totalItems:
+ *                           type: integer
+ *                           example: 100
+ *                         hasNextPage:
+ *                           type: boolean
+ *                           example: true
+ *                         hasPrevPage:
+ *                           type: boolean
+ *                           example: false
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       403:
+ *         description: Forbidden - User is not an admin
+ *       500:
+ *         description: Server error
+ */
+router.get("/users", protect, authorize("admin"), getAllUsers);
 
 /**
  * @swagger
