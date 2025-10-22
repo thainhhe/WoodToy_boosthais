@@ -1,6 +1,7 @@
 // front-end/src/pages/ProductDetail.jsx
 
 import { useState, useEffect } from "react";
+import QRCodeGenerator from "../components/QRCodeGenerator";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProductById, addToCart } from "../service/api";
 import useAuthStore from "../store/authStore";
@@ -47,8 +48,14 @@ export default function ProductDetail() {
   // Debug: Log user state when component mounts or user changes
   useEffect(() => {
     console.log("ProductDetail - User state:", user);
-    console.log("ProductDetail - User from localStorage:", localStorage.getItem("user"));
-    console.log("ProductDetail - Token from localStorage:", localStorage.getItem("accessToken"));
+    console.log(
+      "ProductDetail - User from localStorage:",
+      localStorage.getItem("user")
+    );
+    console.log(
+      "ProductDetail - Token from localStorage:",
+      localStorage.getItem("accessToken")
+    );
   }, [user]);
 
   // MỚI: Hàm xử lý khi nhấn nút "Thêm vào giỏ hàng"
@@ -57,7 +64,7 @@ export default function ProductDetail() {
     const token = localStorage.getItem("accessToken");
     console.log("User object:", user);
     console.log("Token exists:", !!token);
-    
+
     if (!user) {
       // Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
       alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
@@ -119,10 +126,10 @@ export default function ProductDetail() {
   return (
     <div className="bg-white min-h-screen">
       <div className="pt-6 pb-16">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-2 lg:gap-x-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Media gallery */}
-          <div className="flex flex-col items-center">
-            <div className="w-full max-h-[550px] aspect-w-1 aspect-h-1 rounded-lg overflow-hidden border bg-gray-50 flex items-center justify-center">
+          <div className="md:col-span-2 flex flex-col items-center">
+            <div className="w-full max-h-[400px] aspect-w-1 aspect-h-1 rounded-lg overflow-hidden border bg-gray-50 flex items-center justify-center">
               {selectedMedia?.type === "image" ? (
                 <img
                   src={selectedMedia.url}
@@ -138,12 +145,11 @@ export default function ProductDetail() {
                 />
               )}
             </div>
-
             <div className="mt-4 flex space-x-4 overflow-x-auto py-2">
               {allMedia.map((mediaItem, index) => (
                 <button
                   key={mediaItem.publicId || index}
-                  className={`flex-shrink-0 w-24 h-24 rounded-md overflow-hidden border-2 ${
+                  className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${
                     selectedMedia?.url === mediaItem.url
                       ? "border-amber-500"
                       : "border-transparent"
@@ -178,59 +184,63 @@ export default function ProductDetail() {
               ))}
             </div>
           </div>
-
-          {/* Product info */}
-          <div className="mt-10 px-4 sm:px-0 sm:mt-16 lg:mt-0">
-            <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
-              {product.name}
-            </h1>
-            <p className="text-3xl text-gray-900 mt-3">
-              {product.price.toLocaleString("vi-VN")}₫
+          {/* QR code */}
+          <div className="flex flex-col items-center justify-center bg-white rounded-lg shadow p-4 border mt-4 md:mt-0">
+            <QRCodeGenerator
+              url={window.location.origin + "/products/" + id}
+              size={160}
+            />
+            <div className="text-xs text-gray-500 mt-2 text-center">
+              Quét mã QR để xem sản phẩm này trên thiết bị khác
+            </div>
+          </div>
+        </div>
+        {/* Product info */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
+            {product.name}
+          </h1>
+          <p className="text-3xl text-gray-900 mt-3">
+            {product.price.toLocaleString("vi-VN")}₫
+          </p>
+          <div className="mt-6">
+            <h3 className="text-xl font-medium text-gray-900">Mô tả</h3>
+            <p className="text-base text-gray-700 mt-2">
+              {product.description}
             </p>
-
-            <div className="mt-6">
-              <h3 className="text-xl font-medium text-gray-900">Mô tả</h3>
-              <p className="text-base text-gray-700 mt-2">
-                {product.description}
-              </p>
-            </div>
-
-            <div className="mt-6">
-              <h3 className="text-xl font-medium text-gray-900">Câu chuyện</h3>
-              <p className="text-base text-gray-700 mt-2">{product.story}</p>
-            </div>
-
-            <div className="mt-6">
-              <p className="text-base text-gray-600">
-                Còn lại: {product.stock} sản phẩm
-              </p>
-            </div>
-
-            <div className="mt-10">
-              <button
-                onClick={handleAddToCart}
-                disabled={isAdding || product.stock === 0} // Disable nút khi đang thêm hoặc hết hàng
-                className={`max-w-xs flex-1 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white transition ${
-                  product.stock === 0
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-amber-600 hover:bg-amber-700"
-                } ${isAdding ? "opacity-70 cursor-wait" : ""}`}
+          </div>
+          <div className="mt-6">
+            <h3 className="text-xl font-medium text-gray-900">Câu chuyện</h3>
+            <p className="text-base text-gray-700 mt-2">{product.story}</p>
+          </div>
+          <div className="mt-6">
+            <p className="text-base text-gray-600">
+              Còn lại: {product.stock} sản phẩm
+            </p>
+          </div>
+          <div className="mt-10">
+            <button
+              onClick={handleAddToCart}
+              disabled={isAdding || product.stock === 0}
+              className={`max-w-xs flex-1 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white transition ${
+                product.stock === 0
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-amber-600 hover:bg-amber-700"
+              } ${isAdding ? "opacity-70 cursor-wait" : ""}`}
+            >
+              {isAdding ? "Đang thêm..." : "Thêm vào giỏ hàng"}
+            </button>
+            {addCartMessage.text && (
+              <p
+                className={`mt-4 text-sm font-medium ${
+                  addCartMessage.type === "success"
+                    ? "text-green-600"
+                    : "text-red-500"
+                }`}
               >
-                {isAdding ? "Đang thêm..." : "Thêm vào giỏ hàng"}
-              </button>
-              {/* Hiển thị thông báo */}
-              {addCartMessage.text && (
-                <p
-                  className={`mt-4 text-sm font-medium ${
-                    addCartMessage.type === "success"
-                      ? "text-green-600"
-                      : "text-red-500"
-                  }`}
-                >
-                  {addCartMessage.text}
-                </p>
-              )}
-            </div>
+                {addCartMessage.text}
+              </p>
+            )}
           </div>
         </div>
       </div>
