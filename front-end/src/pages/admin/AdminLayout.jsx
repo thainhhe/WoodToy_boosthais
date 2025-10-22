@@ -1,10 +1,18 @@
-import { Outlet, Link, NavLink } from "react-router-dom";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import useAuthStore from "../../store/authStore";
 
 export default function AdminLayout() {
   const navLinkClasses = ({ isActive }) =>
     isActive
       ? "block py-2.5 px-4 bg-amber-200 text-amber-800 rounded"
       : "block py-2.5 px-4 rounded hover:bg-amber-100";
+  const logout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -26,6 +34,12 @@ export default function AdminLayout() {
           <NavLink to="/admin/users" className={navLinkClasses}>
             Users
           </NavLink>
+          <button
+            onClick={handleLogout}
+            className="block w-full mt-6 py-2.5 px-4 rounded bg-red-100 text-red-700 font-bold hover:bg-red-200 transition"
+          >
+            Đăng xuất
+          </button>
         </nav>
       </aside>
 

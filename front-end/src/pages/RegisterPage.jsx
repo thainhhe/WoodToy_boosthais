@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { register, googleAuth } from "../service/api";
+import { register } from "../service/api";
 import useAuthStore from "../store/authStore";
 
 export default function RegisterPage() {
@@ -34,74 +34,6 @@ export default function RegisterPage() {
       setError(err.response?.data?.message || "Đăng ký thất bại");
     }
   };
-
-  // Google Identity Services SDK
-  const googleBtn = useRef(null);
-
-  useEffect(() => {
-    // Load Google script
-    if (!window.google && !document.getElementById("google-oauth")) {
-      const script = document.createElement("script");
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.id = "google-oauth";
-      document.body.appendChild(script);
-      script.onload = renderGoogleBtn;
-    } else {
-      renderGoogleBtn();
-    }
-    // eslint-disable-next-line
-  }, []);
-
-  function renderGoogleBtn() {
-    if (window.google && googleBtn.current) {
-      window.google.accounts.id.initialize({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        callback: handleGoogleResponse,
-      });
-      window.google.accounts.id.renderButton(googleBtn.current, {
-        theme: "outline",
-        size: "large",
-        width: "100%",
-        text: "signup_with",
-        shape: "rectangular",
-      });
-    }
-  }
-
-  async function handleGoogleResponse(response) {
-    setError("");
-    try {
-      const res = await googleAuth(response.credential);
-      const { user, accessToken, refreshToken } = res.data.data; // Lấy cả token
-
-      // Lưu token trước
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      
-      // Lưu user vào store (setUser sẽ tự động lưu vào localStorage)
-      setUser(user);
-
-      console.log("Google Auth Success - User:", user);
-      console.log("Google Auth Success - Token saved:", accessToken);
-
-      // Đợi một chút để đảm bảo state được cập nhật
-      setTimeout(() => {
-        // Kiểm tra role và điều hướng
-        if (user.role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/");
-        }
-      }, 100);
-    } catch (err) {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
-      setError(err.response?.data?.message || "Đăng ký bằng Google thất bại");
-    }
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -147,7 +79,7 @@ export default function RegisterPage() {
         >
           Đăng ký
         </button>
-        <div ref={googleBtn} className="w-full flex justify-center mb-2"></div>
+        {/* Đã bỏ nút đăng ký bằng Google */}
         <div className="mt-4 text-center">
           Đã có tài khoản?{" "}
           <Link to="/login" className="text-amber-700 font-bold">
