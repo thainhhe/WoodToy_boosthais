@@ -1,3 +1,16 @@
+// ========== ORDER (ADMIN) ========== //
+export const updateOrderPaymentStatus = async (orderId, paymentStatus) => {
+  const token = localStorage.getItem("accessToken");
+  return axios.put(
+    `${API_URL}/orders/${orderId}/payment`,
+    {
+      paymentStatus,
+    },
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+};
 import axios from "axios";
 const API_URL = "http://localhost:5000/api";
 
@@ -14,14 +27,14 @@ export const googleAuth = async (token) =>
 // ========== USER (ADMIN) ========== //
 export const getAllUsers = async () => {
   const token = localStorage.getItem("accessToken");
-  return axios.get(`${API_URL}/auth/admin/users`, {
+  return axios.get(`${API_URL}/auth/users`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
 
 export const deleteUser = async (id) => {
   const token = localStorage.getItem("accessToken");
-  return axios.delete(`${API_URL}/auth/admin/users/${id}`, {
+  return axios.delete(`${API_URL}/auth/users/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };

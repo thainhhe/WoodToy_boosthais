@@ -1,6 +1,9 @@
 // front-end/src/pages/admin/OrderList.jsx
 import { useState, useEffect } from "react";
-import { getAllOrdersForAdmin } from "../../service/api";
+import {
+  getAllOrdersForAdmin,
+  updateOrderPaymentStatus,
+} from "../../service/api";
 
 export default function OrderList() {
   const [orders, setOrders] = useState([]);
@@ -15,6 +18,16 @@ export default function OrderList() {
       console.error("Failed to fetch orders:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTogglePayment = async (order) => {
+    const newStatus = order.paymentStatus === "Paid" ? "Pending" : "Paid";
+    try {
+      await updateOrderPaymentStatus(order._id, newStatus);
+      fetchOrders();
+    } catch (error) {
+      alert("Cập nhật trạng thái thanh toán thất bại!");
     }
   };
 
@@ -34,7 +47,7 @@ export default function OrderList() {
               <th className="py-3 px-6 text-left">Mã đơn</th>
               <th className="py-3 px-6 text-left">Khách hàng</th>
               <th className="py-3 px-6 text-left">Tổng tiền</th>
-              <th className="py-3 px-6 text-left">Trạng thái</th>
+              <th className="py-3 px-6 text-left">Thanh toán</th>
               <th className="py-3 px-6 text-left">Ngày tạo</th>
               <th className="py-3 px-6 text-center">Chi tiết</th>
             </tr>
@@ -52,7 +65,20 @@ export default function OrderList() {
                 <td className="py-3 px-6 text-left">
                   {order.total.toLocaleString()}đ
                 </td>
-                <td className="py-3 px-6 text-left">{order.status}</td>
+                <td className="py-3 px-6 text-left">
+                  <button
+                    onClick={() => handleTogglePayment(order)}
+                    className={`px-3 py-1 rounded font-bold text-white ${
+                      order.paymentStatus === "Paid"
+                        ? "bg-green-500"
+                        : "bg-gray-400"
+                    }`}
+                  >
+                    {order.paymentStatus === "Paid"
+                      ? "Đã thanh toán"
+                      : "Chưa thanh toán"}
+                  </button>
+                </td>
                 <td className="py-3 px-6 text-left">
                   {new Date(order.createdAt).toLocaleString()}
                 </td>

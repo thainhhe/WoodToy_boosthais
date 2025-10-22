@@ -859,6 +859,73 @@ export const googleAuth = async (req, res) => {
   }
 };
 
+// @desc    Get all users (Admin only)
+// @route   GET /api/auth/users
+// @access  Private/Admin
+export const getAllUsers = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const role = req.query.role; // Filter by role: 'user' or 'admin'
+    const isActive = req.query.isActive; // Filter by active status: 'true' or 'false'
+    const search = req.query.search; // Search by name or email
+
+    // Build query
+    const query = {};
+    
+    if (role) {
+      query.role = role;
+    }
+    
+    if (isActive !== undefined) {
+      query.isActive = isActive === 'true';
+    }
+    
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Get total count for pagination
+    const total = await User.countDocuments(query);
+    
+    // Get users with pagination
+    const users = await User.find(query)
+      .select('-password -resetPasswordToken -resetPasswordExpire') // Exclude sensitive fields
+      .sort({ createdAt: -1 }) // Newest first
+      .limit(limit)
+      .skip((page - 1) * limit);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return res.status(200).json({
+      success: true,
+      message: "Users retrieved successfully",
+      data: {
+        users,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          pageSize: limit,
+          totalItems: total,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Get all users error:", error);
+    
+    res.status(500).json({
+      success: false,
+      message: "Error fetching users",
+      error: error.message,
+    });
+  }
+};
+
 // @desc    Update user account status (Admin only)
 // @route   PUT /api/auth/users/:userId/status
 // @access  Private/Admin

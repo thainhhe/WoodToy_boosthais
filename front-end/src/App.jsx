@@ -49,6 +49,8 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="products" element={<ProductList />} />
+          <Route path="products/new" element={<ProductEdit />} />
+          <Route path="products/edit/:id" element={<ProductEdit />} />
           <Route path="products/:id" element={<ProductEdit />} />
           <Route path="users" element={<UserList />} />
           <Route path="orders" element={<OrderList />} />

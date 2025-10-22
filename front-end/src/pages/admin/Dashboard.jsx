@@ -1,7 +1,11 @@
 // front-end/src/pages/admin/Dashboard.jsx
 
 import { useState, useEffect } from "react";
-import { getProducts, getAllOrdersForAdmin } from "../../service/api";
+import {
+  getProducts,
+  getAllOrdersForAdmin,
+  getAllUsers,
+} from "../../service/api";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -15,9 +19,10 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [productRes, orderRes] = await Promise.all([
+        const [productRes, orderRes, userRes] = await Promise.all([
           getProducts(),
           getAllOrdersForAdmin(),
+          getAllUsers(),
         ]);
 
         const totalRevenue = orderRes.data.data.reduce(
@@ -29,7 +34,7 @@ export default function Dashboard() {
           revenue: totalRevenue,
           totalOrders: orderRes.data.pagination.total,
           productCount: productRes.data.data.count,
-          userCount: 120,
+          userCount: userRes.data.data.users.length,
         });
       } catch (error) {
         console.error("Failed to fetch dashboard stats:", error);
