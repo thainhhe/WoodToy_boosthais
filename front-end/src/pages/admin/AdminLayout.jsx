@@ -1,5 +1,6 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
+import { Toaster } from "react-hot-toast";
 
 export default function AdminLayout() {
   const navLinkClasses = ({ isActive }) =>
@@ -16,6 +17,7 @@ export default function AdminLayout() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
+      <Toaster position="top-right" />
       {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md">
         <div className="p-6">

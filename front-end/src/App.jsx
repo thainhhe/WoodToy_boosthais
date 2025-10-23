@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 import Home from "./pages/Home";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -35,6 +36,7 @@ function MainLayout() {
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* Các trang ngoài admin có Navbar + Footer */}
         <Route element={<MainLayout />}>

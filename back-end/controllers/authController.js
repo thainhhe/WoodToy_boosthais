@@ -474,7 +474,16 @@ export const getMe = async (req, res) => {
 // @access  Private
 export const updateProfile = async (req, res) => {
   try {
-    const { name, email, phoneNumber, gender, address, removeAvatar } = req.body;
+    let { name, email, phoneNumber, gender, address, removeAvatar } = req.body;
+
+    // Parse address if it's a JSON string (from FormData)
+    if (typeof address === 'string') {
+      try {
+        address = JSON.parse(address);
+      } catch (e) {
+        console.error('Failed to parse address:', e);
+      }
+    }
 
     const user = await User.findById(req.user._id);
 
@@ -541,10 +550,12 @@ export const updateProfile = async (req, res) => {
       if (!user.address) {
         user.address = {};
       }
+      if (address.fullName !== undefined) user.address.fullName = address.fullName;
+      if (address.phone !== undefined) user.address.phone = address.phone;
       if (address.street !== undefined) user.address.street = address.street;
-      if (address.city !== undefined) user.address.city = address.city;
-      if (address.district !== undefined) user.address.district = address.district;
       if (address.ward !== undefined) user.address.ward = address.ward;
+      if (address.district !== undefined) user.address.district = address.district;
+      if (address.city !== undefined) user.address.city = address.city;
       if (address.country !== undefined) user.address.country = address.country;
       if (address.postalCode !== undefined) user.address.postalCode = address.postalCode;
     }

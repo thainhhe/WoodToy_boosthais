@@ -5,6 +5,7 @@ import QRCodeGenerator from "../components/QRCodeGenerator";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProductById, addToCart } from "../service/api";
 import useAuthStore from "../store/authStore";
+import toast from "react-hot-toast";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -60,62 +61,68 @@ export default function ProductDetail() {
 
   // MỚI: Hàm xử lý khi nhấn nút "Thêm vào giỏ hàng"
   const handleAddToCart = async () => {
-    // Debug: Kiểm tra user và token
-    const token = localStorage.getItem("accessToken");
-    console.log("User object:", user);
-    console.log("Token exists:", !!token);
-
     if (!user) {
-      // Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
-      alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
+      toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
       navigate("/login");
       return;
     }
 
     if (product.stock === 0) {
-      setAddCartMessage({ type: "error", text: "Sản phẩm đã hết hàng." });
+      toast.error("Sản phẩm đã hết hàng.");
       return;
     }
 
     setIsAdding(true);
-    setAddCartMessage({ type: "", text: "" }); // Reset thông báo
 
     try {
-      await addToCart(product._id, 1); // Thêm 1 sản phẩm
-      setAddCartMessage({
-        type: "success",
-        text: "Đã thêm sản phẩm vào giỏ hàng!",
-      });
+      await addToCart(product._id, 1);
+      toast.success("Đã thêm sản phẩm vào giỏ hàng! 🎉");
       fetchCartCount();
-      // Tùy chọn: Cập nhật số lượng trong giỏ hàng trên Navbar (sẽ làm ở bước sau)
     } catch (err) {
       console.error("Add to cart error:", err);
-      // Xử lý lỗi cụ thể hơn dựa trên response từ API
       if (err.response?.status === 401) {
-        alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-        // Có thể gọi hàm logout ở đây và chuyển hướng
+        toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
         navigate("/login");
       } else if (err.message === "User not authenticated") {
-        alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
+        toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
         navigate("/login");
       } else {
-        setAddCartMessage({
-          type: "error",
-          text: err.response?.data?.message || "Thêm vào giỏ hàng thất bại.",
-        });
+        toast.error(err.response?.data?.message || "Thêm vào giỏ hàng thất bại.");
       }
     } finally {
       setIsAdding(false);
-      // Tự động ẩn thông báo sau vài giây
-      setTimeout(() => setAddCartMessage({ type: "", text: "" }), 3000);
     }
   };
 
-  if (loading) return <div className="text-center py-20">Đang tải...</div>;
+  if (loading)
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Đang tải sản phẩm...</p>
+        </div>
+      </div>
+    );
+
   if (error)
-    return <div className="text-center py-20 text-red-500">{error}</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
+        <div className="text-center bg-white p-8 rounded-lg shadow-lg">
+          <div className="text-6xl mb-4">😔</div>
+          <p className="text-red-500 text-lg font-medium">{error}</p>
+        </div>
+      </div>
+    );
+
   if (!product)
-    return <div className="text-center py-20">Không tìm thấy sản phẩm.</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
+        <div className="text-center bg-white p-8 rounded-lg shadow-lg">
+          <div className="text-6xl mb-4">🔍</div>
+          <p className="text-gray-700 text-lg font-medium">Không tìm thấy sản phẩm.</p>
+        </div>
+      </div>
+    );
 
   // Gộp tất cả media vào một mảng để render thumbnail
   const allMedia = [
@@ -124,123 +131,177 @@ export default function ProductDetail() {
   ];
 
   return (
-    <div className="bg-white min-h-screen">
-      <div className="pt-6 pb-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Media gallery */}
-          <div className="md:col-span-2 flex flex-col items-center">
-            <div className="w-full max-h-[400px] aspect-w-1 aspect-h-1 rounded-lg overflow-hidden border bg-gray-50 flex items-center justify-center">
-              {selectedMedia?.type === "image" ? (
-                <img
-                  src={selectedMedia.url}
-                  alt={selectedMedia.alt || product.name}
-                  className="w-full h-full object-center object-contain"
-                />
-              ) : (
-                <video
-                  src={selectedMedia?.url}
-                  controls
-                  poster={selectedMedia?.thumbnail}
-                  className="w-full h-full object-center object-contain"
-                />
-              )}
-            </div>
-            <div className="mt-4 flex space-x-4 overflow-x-auto py-2">
-              {allMedia.map((mediaItem, index) => (
-                <button
-                  key={mediaItem.publicId || index}
-                  className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${
-                    selectedMedia?.url === mediaItem.url
-                      ? "border-amber-500"
-                      : "border-transparent"
-                  }`}
-                  onClick={() => setSelectedMedia(mediaItem)}
-                >
-                  {mediaItem.type === "image" ? (
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 sm:p-10">
+            {/* Media Gallery */}
+            <div className="space-y-4">
+              <div className="relative bg-gray-50 rounded-2xl overflow-hidden shadow-inner border border-gray-200">
+                <div className="aspect-w-1 aspect-h-1 w-full min-h-[400px] flex items-center justify-center">
+                  {selectedMedia?.type === "image" ? (
                     <img
-                      src={mediaItem.url}
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      src={selectedMedia.url}
+                      alt={selectedMedia.alt || product.name}
+                      className="w-full h-full object-contain p-4"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-200 relative">
+                    <video
+                      src={selectedMedia?.url}
+                      controls
+                      poster={selectedMedia?.thumbnail}
+                      className="w-full h-full object-contain"
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Thumbnails */}
+              <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
+                {allMedia.map((mediaItem, index) => (
+                  <button
+                    key={mediaItem.publicId || index}
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 hover:scale-105 ${
+                      selectedMedia?.url === mediaItem.url
+                        ? "border-amber-500 shadow-md"
+                        : "border-gray-200 hover:border-amber-300"
+                    }`}
+                    onClick={() => setSelectedMedia(mediaItem)}
+                  >
+                    {mediaItem.type === "image" ? (
                       <img
-                        src={mediaItem.thumbnail || "/placeholder.jpg"}
-                        alt="Video thumbnail"
+                        src={mediaItem.url}
+                        alt={`Thumbnail ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                        <svg
-                          className="h-8 w-8 text-white"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8.006v3.988a1 1 0 001.555.832l3.197-1.994a1 1 0 000-1.664l-3.197-1.994z" />
-                        </svg>
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 relative">
+                        <img
+                          src={mediaItem.thumbnail || "/placeholder.jpg"}
+                          alt="Video thumbnail"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                          <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8.006v3.988a1 1 0 001.555.832l3.197-1.994a1 1 0 000-1.664l-3.197-1.994z" />
+                          </svg>
+                        </div>
                       </div>
-                    </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Product Info */}
+            <div className="flex flex-col">
+              <div className="flex-1">
+                {/* Category Badge */}
+                {product.category && (
+                  <span className="inline-block bg-amber-100 text-amber-800 text-sm font-medium px-3 py-1 rounded-full mb-4">
+                    {product.category}
+                  </span>
+                )}
+
+                <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
+                  {product.name}
+                </h1>
+
+                {/* Price */}
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 mb-6 border border-amber-200">
+                  <p className="text-sm text-gray-600 mb-1">Giá</p>
+                  <p className="text-4xl font-bold text-amber-600">
+                    {product.price.toLocaleString("vi-VN")}₫
+                  </p>
+                </div>
+
+                {/* Stock Info */}
+                <div className="flex items-center gap-2 mb-6">
+                  {product.stock > 0 ? (
+                    <>
+                      <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                      <p className="text-green-700 font-medium">
+                        Còn {product.stock} sản phẩm
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                      <p className="text-red-700 font-medium">Hết hàng</p>
+                    </>
+                  )}
+                </div>
+
+                {/* Description */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                    <span>📝</span> Mô tả sản phẩm
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    {product.description}
+                  </p>
+                </div>
+
+                {/* Story */}
+                {product.story && (
+                  <div className="mb-6 bg-blue-50 rounded-xl p-4 border border-blue-100">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                      <span>✨</span> Câu chuyện
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      {product.story}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Add to Cart Button */}
+              <div className="space-y-4 pt-6 border-t border-gray-200">
+                <button
+                  onClick={handleAddToCart}
+                  disabled={isAdding || product.stock === 0}
+                  className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-200 transform flex items-center justify-center gap-2 ${
+                    product.stock === 0
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 hover:scale-105 shadow-lg hover:shadow-xl"
+                  } ${isAdding ? "opacity-70" : ""}`}
+                >
+                  {isAdding ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Đang thêm...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      {product.stock === 0 ? "Hết hàng" : "Thêm vào giỏ hàng"}
+                    </>
                   )}
                 </button>
-              ))}
+
+                {/* QR Code */}
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-center gap-4">
+                    <div className="flex-shrink-0">
+                      <QRCodeGenerator
+                        url={window.location.origin + "/products/" + id}
+                        size={100}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900 mb-1">
+                        📱 Chia sẻ sản phẩm
+                      </p>
+                      <p className="text-xs text-gray-600">
+                        Quét mã QR để xem trên điện thoại
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          {/* QR code */}
-          <div className="flex flex-col items-center justify-center bg-white rounded-lg shadow p-4 border mt-4 md:mt-0">
-            <QRCodeGenerator
-              url={window.location.origin + "/products/" + id}
-              size={160}
-            />
-            <div className="text-xs text-gray-500 mt-2 text-center">
-              Quét mã QR để xem sản phẩm này trên thiết bị khác
-            </div>
-          </div>
-        </div>
-        {/* Product info */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
-            {product.name}
-          </h1>
-          <p className="text-3xl text-gray-900 mt-3">
-            {product.price.toLocaleString("vi-VN")}₫
-          </p>
-          <div className="mt-6">
-            <h3 className="text-xl font-medium text-gray-900">Mô tả</h3>
-            <p className="text-base text-gray-700 mt-2">
-              {product.description}
-            </p>
-          </div>
-          <div className="mt-6">
-            <h3 className="text-xl font-medium text-gray-900">Câu chuyện</h3>
-            <p className="text-base text-gray-700 mt-2">{product.story}</p>
-          </div>
-          <div className="mt-6">
-            <p className="text-base text-gray-600">
-              Còn lại: {product.stock} sản phẩm
-            </p>
-          </div>
-          <div className="mt-10">
-            <button
-              onClick={handleAddToCart}
-              disabled={isAdding || product.stock === 0}
-              className={`max-w-xs flex-1 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white transition ${
-                product.stock === 0
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-amber-600 hover:bg-amber-700"
-              } ${isAdding ? "opacity-70 cursor-wait" : ""}`}
-            >
-              {isAdding ? "Đang thêm..." : "Thêm vào giỏ hàng"}
-            </button>
-            {addCartMessage.text && (
-              <p
-                className={`mt-4 text-sm font-medium ${
-                  addCartMessage.type === "success"
-                    ? "text-green-600"
-                    : "text-red-500"
-                }`}
-              >
-                {addCartMessage.text}
-              </p>
-            )}
           </div>
         </div>
       </div>

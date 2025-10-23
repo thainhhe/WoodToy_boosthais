@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react"; // Thêm useRef
-import { Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 
 // Icon giỏ hàng (giữ nguyên)
@@ -21,28 +21,23 @@ const CartIcon = () => (
 );
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false); // State cho menu mobile
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false); // State cho dropdown user
-  const userMenuRef = useRef(null); // Ref để xử lý click bên ngoài dropdown
+  const [isOpen, setIsOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const menuItems = [
-    { name: "Trang chủ", to: "/" },
-    { name: "Về chúng tôi", to: "/#about" },
-    { name: "Sản phẩm", to: "/#products" },
-    { name: "Đội ngũ", to: "/#team" },
+    { name: "Trang chủ", to: "/", hash: "" },
+    { name: "Về chúng tôi", to: "/", hash: "about" },
+    { name: "Sản phẩm", to: "/", hash: "products" },
+    { name: "Đội ngũ", to: "/", hash: "team" },
   ];
+  
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const cartItemCount = useAuthStore((state) => state.cartItemCount);
   const fetchCartCount = useAuthStore((state) => state.fetchCartCount);
-
-  // Debug: Log user state
-  useEffect(() => {
-    console.log("Navbar - User state:", user);
-    console.log(
-      "Navbar - Token in localStorage:",
-      localStorage.getItem("accessToken")
-    );
-  }, [user]);
 
   // Xử lý đóng dropdown khi click ra ngoài
   useEffect(() => {
@@ -64,12 +59,62 @@ export default function Navbar() {
     }
   }, [user, fetchCartCount]);
 
+  // Hàm xử lý smooth scroll đến section
+  const scrollToSection = (hash, delay = 100) => {
+    if (!hash) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    
+    setTimeout(() => {
+      const element = document.getElementById(hash);
+      if (element) {
+        const navbarHeight = 80; // Height của navbar
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
+      }
+    }, delay);
+  };
+
+  // Xử lý click menu item
+  const handleMenuClick = (e, item) => {
+    e.preventDefault();
+    setIsOpen(false); // Đóng mobile menu
+    
+    if (location.pathname !== item.to) {
+      // Nếu không ở trang home, navigate về home trước
+      if (item.hash) {
+        navigate(`${item.to}#${item.hash}`);
+      } else {
+        navigate(item.to);
+        scrollToSection(""); // Scroll to top
+      }
+    } else {
+      // Nếu đã ở trang home, scroll trực tiếp
+      scrollToSection(item.hash);
+    }
+  };
+
+  // Xử lý scroll khi URL hash thay đổi hoặc navigate
+  useEffect(() => {
+    if (location.pathname === '/') {
+      const hash = location.hash.replace('#', '');
+      if (hash) {
+        // Delay lớn hơn khi navigate từ trang khác
+        scrollToSection(hash, 300);
+      }
+    }
+  }, [location]);
+
   // Hàm xử lý logout
   const handleLogout = () => {
     logout();
-    setIsUserMenuOpen(false); // Đóng dropdown
-    // Tùy chọn: Chuyển hướng
-    // navigate('/');
+    setIsUserMenuOpen(false);
   };
 
   return (
@@ -86,20 +131,24 @@ export default function Navbar() {
           {/* Menu chính (Desktop) */}
           <div className="hidden md:flex items-center space-x-8">
             {menuItems.map((item) => (
-              <Link
+              <a
                 key={item.name}
-                to={item.to}
-                className="font-medium text-brand-text hover:text-brand-secondary transition duration-300"
+                href={item.hash ? `${item.to}#${item.hash}` : item.to}
+                onClick={(e) => handleMenuClick(e, item)}
+                className="font-medium text-brand-text hover:text-brand-secondary transition duration-300 cursor-pointer"
               >
                 {item.name}
-              </Link>
+              </a>
             ))}
           </div>
 
           {/* Phần bên phải Navbar (Desktop) */}
           <div className="hidden md:flex items-center space-x-4">
             {/* Nút Khám Phá */}
-            <button className="bg-brand-secondary text-white font-bold py-2 px-6 rounded-full hover:bg-opacity-90 transition duration-300">
+            <button 
+              onClick={(e) => handleMenuClick(e, { to: "/", hash: "products" })}
+              className="bg-brand-secondary text-white font-bold py-2 px-6 rounded-full hover:bg-opacity-90 transition duration-300"
+            >
               Khám Phá
             </button>
 
@@ -242,14 +291,14 @@ export default function Navbar() {
           <div className="md:hidden pb-4 space-y-2">
             {/* Các link menu mobile */}
             {menuItems.map((item) => (
-              <Link
+              <a
                 key={item.name}
-                to={item.to}
-                onClick={() => setIsOpen(false)}
-                className="block py-2 px-4 text-sm text-brand-text hover:bg-brand-light rounded"
+                href={item.hash ? `${item.to}#${item.hash}` : item.to}
+                onClick={(e) => handleMenuClick(e, item)}
+                className="block py-2 px-4 text-sm text-brand-text hover:bg-brand-light rounded cursor-pointer"
               >
                 {item.name}
-              </Link>
+              </a>
             ))}
 
             {/* Link giỏ hàng mobile */}
@@ -267,7 +316,10 @@ export default function Navbar() {
             </Link>
 
             {/* Nút khám phá mobile */}
-            <button className="w-full mt-2 bg-brand-secondary text-white font-bold py-2 px-6 rounded-full hover:bg-opacity-90 transition duration-300">
+            <button 
+              onClick={(e) => handleMenuClick(e, { to: "/", hash: "products" })}
+              className="w-full mt-2 bg-brand-secondary text-white font-bold py-2 px-6 rounded-full hover:bg-opacity-90 transition duration-300"
+            >
               Khám Phá
             </button>
 

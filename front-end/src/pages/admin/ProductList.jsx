@@ -2,11 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import { getProducts, deleteProduct } from "../../service/api";
+import { useConfirm } from "../../components/ConfirmDialog";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { confirm, ConfirmDialog } = useConfirm();
 
   const fetchProducts = async () => {
     try {
@@ -25,14 +30,22 @@ export default function ProductList() {
   }, []);
 
   const handleDelete = async (id, name) => {
-    if (window.confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${name}"?`)) {
+    const confirmed = await confirm({
+      title: "Xác nhận xóa sản phẩm",
+      message: `Bạn có chắc chắn muốn xóa sản phẩm "${name}"? Hành động này không thể hoàn tác.`,
+    });
+
+    if (confirmed) {
+      setIsDeleting(true);
       try {
         await deleteProduct(id);
-        alert("Xóa sản phẩm thành công!");
+        toast.success("Xóa sản phẩm thành công!");
         fetchProducts(); // Tải lại danh sách
       } catch (error) {
         console.error("Failed to delete product:", error);
-        alert("Xóa sản phẩm thất bại!");
+        toast.error("Xóa sản phẩm thất bại!");
+      } finally {
+        setIsDeleting(false);
       }
     }
   };
@@ -41,6 +54,8 @@ export default function ProductList() {
 
   return (
     <div>
+      <LoadingOverlay isLoading={isDeleting} message="Đang xóa sản phẩm..." />
+      <ConfirmDialog />
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Quản lý sản phẩm</h1>
         <Link

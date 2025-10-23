@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   getProductById,
   createProduct,
   updateProduct,
 } from "../../service/api";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 export default function ProductEdit() {
   const { id } = useParams();
@@ -23,6 +25,7 @@ export default function ProductEdit() {
   });
   const [images, setImages] = useState([]); // File list cho ảnh mới
   const [video, setVideo] = useState(null); // File cho video mới
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (isEditing) {
@@ -33,7 +36,7 @@ export default function ProductEdit() {
           setProduct(res.data.data.product);
         } catch (error) {
           console.error("Failed to fetch product:", error);
-          alert("Không tìm thấy sản phẩm!");
+          toast.error("Không tìm thấy sản phẩm!");
         }
       };
       fetchProduct();
@@ -50,6 +53,8 @@ export default function ProductEdit() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     const formData = new FormData();
 
     for (const key in product) {
@@ -69,20 +74,26 @@ export default function ProductEdit() {
     try {
       if (isEditing) {
         await updateProduct(id, formData);
-        alert("Cập nhật sản phẩm thành công!");
+        toast.success("Cập nhật sản phẩm thành công!");
       } else {
         await createProduct(formData);
-        alert("Tạo sản phẩm thành công!");
+        toast.success("Tạo sản phẩm thành công!");
       }
       navigate("/admin/products");
     } catch (error) {
       console.error("Failed to save product:", error.response?.data || error);
-      alert("Lưu sản phẩm thất bại!");
+      toast.error("Lưu sản phẩm thất bại!");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div>
+      <LoadingOverlay
+        isLoading={isSubmitting}
+        message={isEditing ? "Đang cập nhật sản phẩm..." : "Đang tạo sản phẩm..."}
+      />
       <h1 className="text-3xl font-bold mb-6">
         {isEditing ? `Chỉnh sửa: ${product.name}` : "Thêm sản phẩm mới"}
       </h1>

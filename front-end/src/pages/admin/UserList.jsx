@@ -1,10 +1,15 @@
 // front-end/src/pages/admin/UserList.jsx
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { getAllUsers, deleteUser } from "../../service/api";
+import { useConfirm } from "../../components/ConfirmDialog";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 export default function UserList() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { confirm, ConfirmDialog } = useConfirm();
 
   const fetchUsers = async () => {
     try {
@@ -23,14 +28,22 @@ export default function UserList() {
   }, []);
 
   const handleDelete = async (id, name) => {
-    if (window.confirm(`Bạn có chắc chắn muốn xóa người dùng "${name}"?`)) {
+    const confirmed = await confirm({
+      title: "Xác nhận xóa người dùng",
+      message: `Bạn có chắc chắn muốn xóa người dùng "${name}"? Hành động này không thể hoàn tác.`,
+    });
+
+    if (confirmed) {
+      setIsDeleting(true);
       try {
         await deleteUser(id);
-        alert("Xóa người dùng thành công!");
+        toast.success("Xóa người dùng thành công!");
         fetchUsers();
       } catch (error) {
         console.error("Failed to delete user:", error);
-        alert("Xóa người dùng thất bại!");
+        toast.error("Xóa người dùng thất bại!");
+      } finally {
+        setIsDeleting(false);
       }
     }
   };
@@ -39,6 +52,8 @@ export default function UserList() {
 
   return (
     <div>
+      <LoadingOverlay isLoading={isDeleting} message="Đang xóa người dùng..." />
+      <ConfirmDialog />
       <h1 className="text-3xl font-bold mb-6">Quản lý người dùng</h1>
       <div className="bg-white shadow-md rounded overflow-x-auto">
         <table className="min-w-full table-auto">
