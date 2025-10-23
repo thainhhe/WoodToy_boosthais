@@ -1,3 +1,17 @@
+// ========== USER PROFILE ========== //
+export const getUserProfile = async () => {
+  const token = localStorage.getItem("accessToken");
+  return axios.get(`${API_URL}/auth/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+export const updateUserProfile = async (profileData) => {
+  const token = localStorage.getItem("accessToken");
+  return axios.put(`${API_URL}/auth/me`, profileData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
 // ========== ORDER (ADMIN) ========== //
 export const updateOrderPaymentStatus = async (orderId, paymentStatus) => {
   const token = localStorage.getItem("accessToken");

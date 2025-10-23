@@ -25,10 +25,10 @@ export default function Navbar() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false); // State cho dropdown user
   const userMenuRef = useRef(null); // Ref để xử lý click bên ngoài dropdown
   const menuItems = [
-    { name: "Trang chủ", href: "/" },
-    { name: "Về chúng tôi", href: "#about" },
-    { name: "Sản phẩm", href: "#products" },
-    { name: "Đội ngũ", href: "#team" },
+    { name: "Trang chủ", to: "/" },
+    { name: "Về chúng tôi", to: "/#about" },
+    { name: "Sản phẩm", to: "/#products" },
+    { name: "Đội ngũ", to: "/#team" },
   ];
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
@@ -38,7 +38,10 @@ export default function Navbar() {
   // Debug: Log user state
   useEffect(() => {
     console.log("Navbar - User state:", user);
-    console.log("Navbar - Token in localStorage:", localStorage.getItem("accessToken"));
+    console.log(
+      "Navbar - Token in localStorage:",
+      localStorage.getItem("accessToken")
+    );
   }, [user]);
 
   // Xử lý đóng dropdown khi click ra ngoài
@@ -83,13 +86,13 @@ export default function Navbar() {
           {/* Menu chính (Desktop) */}
           <div className="hidden md:flex items-center space-x-8">
             {menuItems.map((item) => (
-              <a
+              <Link
                 key={item.name}
-                href={item.href}
+                to={item.to}
                 className="font-medium text-brand-text hover:text-brand-secondary transition duration-300"
               >
                 {item.name}
-              </a>
+              </Link>
             ))}
           </div>
 
@@ -239,14 +242,14 @@ export default function Navbar() {
           <div className="md:hidden pb-4 space-y-2">
             {/* Các link menu mobile */}
             {menuItems.map((item) => (
-              <a
+              <Link
                 key={item.name}
-                href={item.href}
+                to={item.to}
                 onClick={() => setIsOpen(false)}
                 className="block py-2 px-4 text-sm text-brand-text hover:bg-brand-light rounded"
               >
                 {item.name}
-              </a>
+              </Link>
             ))}
 
             {/* Link giỏ hàng mobile */}

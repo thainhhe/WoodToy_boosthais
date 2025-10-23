@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProductDetail from "./pages/ProductDetail";
+import ProfilePage from "./pages/ProfilePage";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminLayout from "./pages/admin/AdminLayout";
 import ProductList from "./pages/admin/ProductList";
@@ -41,6 +42,7 @@ function App() {
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
           <Route path="products/:id" element={<ProductDetail />} />
+          <Route path="profile" element={<ProfilePage />} />
           <Route path="cart" element={<CartPage />} />
           <Route path="checkout" element={<CheckoutPage />} />
           <Route path="orders" element={<OrderHistoryPage />} />
