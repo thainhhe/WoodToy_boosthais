@@ -31,6 +31,7 @@ export default function Navbar() {
     { name: "Trang chủ", to: "/", hash: "" },
     { name: "Về chúng tôi", to: "/about", hash: "" },
     { name: "Sản phẩm", to: "/", hash: "products" },
+    { name: "Blog", to: "/blogs", hash: "" },
     { name: "Đội ngũ", to: "/", hash: "team" },
   ];
 
@@ -242,7 +243,7 @@ export default function Navbar() {
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       role="menuitem"
                     >
-                      Profile
+                      Hồ sơ cá nhân
                     </Link>
                     <Link
                       to="/orders"
@@ -250,14 +251,14 @@ export default function Navbar() {
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       role="menuitem"
                     >
-                      My Order
+                      Đơn hàng của bạn
                     </Link>
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 focus:outline-none"
                       role="menuitem"
                     >
-                      Logout
+                      Đăng xuất
                     </button>
                   </div>
                 )}

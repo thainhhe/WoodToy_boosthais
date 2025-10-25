@@ -23,6 +23,11 @@ import OrderHistoryPage from "./pages/OrderHistoryPage";
 import UserList from "./pages/admin/UserList";
 import OrderList from "./pages/admin/OrderList";
 import About from "./components/About";
+import BlogList from "./pages/BlogList";
+import BlogDetail from "./pages/BlogDetail";
+import BlogAdminList from "./pages/admin/BlogAdminList";
+import BlogCreate from "./pages/admin/BlogCreate";
+import BlogEdit from "./pages/admin/BlogEdit";
 
 function MainLayout() {
   return (
@@ -50,6 +55,8 @@ function App() {
           <Route path="checkout" element={<CheckoutPage />} />
           <Route path="orders" element={<OrderHistoryPage />} />
           <Route path="about" element={<About />} />
+          <Route path="blogs" element={<BlogList />} />
+          <Route path="blogs/:id" element={<BlogDetail />} />
         </Route>
         {/* Trang admin không có Navbar, Footer */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -60,6 +67,9 @@ function App() {
           <Route path="products/:id" element={<ProductEdit />} />
           <Route path="users" element={<UserList />} />
           <Route path="orders" element={<OrderList />} />
+          <Route path="blogs" element={<BlogAdminList />} />
+          <Route path="blogs/create" element={<BlogCreate />} />
+          <Route path="blogs/:id/edit" element={<BlogEdit />} />
         </Route>
       </Routes>
     </Router>

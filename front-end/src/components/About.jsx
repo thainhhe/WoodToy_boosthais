@@ -1,3 +1,5 @@
+import FloatingSocial from "../components/FloatingSocial";
+
 export default function About() {
   return (
     <div className="bg-white min-h-screen flex flex-col">
@@ -161,6 +163,7 @@ export default function About() {
           </div>
         </section>
       </main>
+      <FloatingSocial />
     </div>
   );
 }

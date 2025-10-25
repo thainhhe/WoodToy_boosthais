@@ -25,6 +25,73 @@ export const updateOrderPaymentStatus = async (orderId, paymentStatus) => {
     }
   );
 };
+
+// ========== BLOG ========== //
+export const getBlogs = async (params = {}) => {
+  return axios.get(`${API_URL}/blogs`, { params });
+};
+
+export const getBlogById = async (id) => {
+  return axios.get(`${API_URL}/blogs/${id}`);
+};
+
+export const createBlog = async (blogData) => {
+  const token = localStorage.getItem("accessToken");
+  return axios.post(`${API_URL}/blogs`, blogData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+export const updateBlog = async (id, blogData) => {
+  const token = localStorage.getItem("accessToken");
+  return axios.put(`${API_URL}/blogs/${id}`, blogData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+export const deleteBlog = async (id) => {
+  const token = localStorage.getItem("accessToken");
+  return axios.delete(`${API_URL}/blogs/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+export const likeBlog = async (id) => {
+  const token = localStorage.getItem("accessToken");
+  return axios.post(
+    `${API_URL}/blogs/${id}/like`,
+    {},
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+};
+
+export const addCommentToBlog = async (id, content) => {
+  const token = localStorage.getItem("accessToken");
+  return axios.post(
+    `${API_URL}/blogs/${id}/comments`,
+    { content },
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+};
+
+export const deleteCommentFromBlog = async (blogId, commentId) => {
+  const token = localStorage.getItem("accessToken");
+  return axios.delete(`${API_URL}/blogs/${blogId}/comments/${commentId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+export const getBlogCategories = async () => {
+  return axios.get(`${API_URL}/blogs/categories/list`);
+};
+
+export const getPopularBlogTags = async (limit = 20) => {
+  return axios.get(`${API_URL}/blogs/tags/popular`, { params: { limit } });
+};
 import axios from "axios";
 const API_URL = "http://localhost:5000/api";
 
@@ -41,6 +108,7 @@ export const googleAuth = async (token) =>
 // ========== USER (ADMIN) ========== //
 export const getAllUsers = async () => {
   const token = localStorage.getItem("accessToken");
+  if (!token) return { data: { data: { users: [] } } };
   return axios.get(`${API_URL}/auth/users`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -104,7 +172,7 @@ export const addToCart = async (productId, quantity = 1) => {
 export const getCart = async () => {
   const token = localStorage.getItem("accessToken");
   if (!token) {
-    console.log("getCart: No token found");
+    // Không gọi API nếu chưa đăng nhập
     return null;
   }
   try {
@@ -113,11 +181,7 @@ export const getCart = async () => {
     });
     return response.data.data.cart;
   } catch (error) {
-    if (error.response?.status === 401) {
-      console.error("Cart fetch failed: Unauthorized. Token might be expired.");
-    } else {
-      console.error("Failed to fetch cart:", error);
-    }
+    // Không log lỗi 401 ra console nữa
     return null;
   }
 };
@@ -163,6 +227,7 @@ export const getUserOrders = async (page = 1, limit = 10) => {
 // ========== ORDER (ADMIN) ========== //
 export const getAllOrdersForAdmin = async () => {
   const token = localStorage.getItem("accessToken");
+  if (!token) return { data: { data: [] } };
   return axios.get(`${API_URL}/orders/admin/all`, {
     headers: { Authorization: `Bearer ${token}` },
   });
