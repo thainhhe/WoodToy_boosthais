@@ -233,6 +233,14 @@ export const createBlog = async (req, res) => {
 // @access  Private/Admin
 export const updateBlog = async (req, res) => {
   try {
+    // Debug logging
+    console.log("=== UPDATE BLOG DEBUG ===");
+    console.log("Blog ID from params:", req.params.id);
+    console.log("Full URL:", req.originalUrl);
+    console.log("Method:", req.method);
+    console.log("User role:", req.user?.role);
+    console.log("========================");
+
     const {
       title,
       content,
@@ -247,6 +255,8 @@ export const updateBlog = async (req, res) => {
     } = req.body;
 
     const blog = await Blog.findById(req.params.id);
+
+    console.log("Blog found:", blog ? `Yes (${blog._id})` : "No");
 
     if (!blog) {
       return sendNotFound(res, "Blog not found");
@@ -359,7 +369,17 @@ export const updateBlog = async (req, res) => {
 // @access  Private/Admin
 export const deleteBlog = async (req, res) => {
   try {
+    // Debug logging
+    console.log("=== DELETE BLOG DEBUG ===");
+    console.log("Blog ID from params:", req.params.id);
+    console.log("Full URL:", req.originalUrl);
+    console.log("Method:", req.method);
+    console.log("User role:", req.user?.role);
+    console.log("========================");
+
     const blog = await Blog.findById(req.params.id);
+
+    console.log("Blog found:", blog ? `Yes (${blog._id})` : "No");
 
     if (!blog) {
       return sendNotFound(res, "Blog not found");

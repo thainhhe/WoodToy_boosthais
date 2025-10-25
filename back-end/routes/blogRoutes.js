@@ -449,7 +449,7 @@ router.route("/")
  *       500:
  *         description: Server error
  */
-router.route("/:identifier")
+router.route("/:id")
   .get(optionalAuth, getBlogByIdentifier)
   .put(protect, authorize("admin"), uploadProductMedia, handleMulterError, updateBlog)
   .delete(protect, authorize("admin"), deleteBlog);
