@@ -26,7 +26,7 @@ export default function Team() {
     <section id="team" className="py-24 bg-brand-light">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-4xl font-bold text-brand-primary mb-12">
-          Đội ngũ WoodToys
+          Đội ngũ VietMyth Luminarts
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {teamMembers.map((member) => (

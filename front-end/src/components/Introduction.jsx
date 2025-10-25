@@ -54,12 +54,17 @@ export default function Introduction() {
             style={{ animationDelay: "0.2s" }}
           >
             <p className="text-brand-text leading-relaxed">
-              <strong>WoodToys</strong> là bộ sưu tập đồ chơi giáo dục bằng gỗ
-              dành cho trẻ từ 3-10 tuổi, được thiết kế để mang đến trải nghiệm
-              học mà chơi đầy sáng tạo. Mỗi món đồ chơi không chỉ là những mảnh
-              gỗ được chế tác tỉ mỉ, mà còn là một công cụ giúp trẻ chủ động
-              khám phá thế giới thông qua trải nghiệm tương tác trực quan, dễ
-              hiểu và giàu cảm xúc.
+              <strong>Hộp Mô hình Đồ chơi Gỗ VietMyth Luminarts</strong> là sự
+              kết hợp độc đáo giữa giáo dục, nghệ thuật và văn hóa dân gian Việt
+              Nam. Lấy cảm hứng từ những câu chuyện cổ như Lang Liêu, Chú Cuội
+              hay Cây Khế, sản phẩm mang đến cho trẻ em một cách tiếp cận mới mẻ
+              với văn hóa truyền thống — học qua chơi, chơi để khám phá. Mỗi hộp
+              mô hình là một thế giới thu nhỏ được tạo nên từ gỗ tự nhiên an
+              toàn, đi kèm truyện tranh minh họa và bộ công cụ sáng tạo giúp trẻ
+              tự tay lắp ráp, tô màu, sắp đặt và kể lại câu chuyện dân gian theo
+              trí tưởng tượng của riêng mình. Đây không chỉ là một món đồ chơi,
+              mà còn là một hành trình nuôi dưỡng cảm xúc, khơi dậy sáng tạo và
+              khuyến khích tư duy nghệ thuật ở trẻ nhỏ.
             </p>
             <img
               src="/wooden-house-puzzle.jpg"
@@ -81,13 +86,19 @@ export default function Introduction() {
               className="rounded-xl w-3/4 max-w-xs mx-auto shadow-lg mb-6"
             />
             <p className="text-brand-text leading-relaxed">
-              Với nội dung được kiểm duyệt kỹ lưỡng và thiết kế thẩm mỹ cao, bộ
-              đồ chơi không chỉ là công cụ học tập hiệu quả mà còn góp phần đổi
-              mới phương pháp tiếp cận giáo dục sớm. Các nhân vật, hình khối
-              "sống động" giúp trẻ chủ động khám phá kiến thức, phát triển tư
-              duy, ngôn ngữ và tình yêu với sự khám phá. Đây là giải pháp giáo
-              dục sáng tạo, góp phần lan tỏa giá trị "chơi để học" một cách thú
-              vị và hiệu quả.
+              Là cầu nối giữa quá khứ và hiện tại, giúp trẻ em ngày nay hiểu và
+              yêu hơn bản sắc dân tộc. Mỗi sản phẩm là một “mảnh ghép văn hóa”,
+              góp phần bảo tồn và lan tỏa kho tàng truyện dân gian Việt Nam
+              trong thời đại công nghệ. Thông qua việc vừa học vừa chơi, trẻ
+              lĩnh hội được những bài học nhân văn về lòng hiếu thảo, trung
+              thực, đoàn kết và dũng cảm – những giá trị sống được gửi gắm trong
+              từng câu chuyện cổ. Sản phẩm còn mang ý nghĩa gắn kết gia đình,
+              khi cha mẹ và con cái cùng lắp ráp, kể chuyện và chia sẻ khoảnh
+              khắc sáng tạo bên nhau. Hộp Mô hình Đồ chơi Gỗ VietMyth Luminarts
+              vì thế không chỉ là món quà cho trẻ nhỏ, mà là món quà tinh thần
+              cho cả gia đình Việt, góp phần gìn giữ ngọn lửa văn hóa dân tộc
+              bằng cách để trẻ em tự mình viết tiếp những huyền thoại xưa bằng
+              trí tưởng tượng của thời nay.
             </p>
           </div>
         </div>

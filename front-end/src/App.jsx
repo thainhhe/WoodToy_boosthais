@@ -22,6 +22,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderHistoryPage from "./pages/OrderHistoryPage";
 import UserList from "./pages/admin/UserList";
 import OrderList from "./pages/admin/OrderList";
+import About from "./components/About";
 
 function MainLayout() {
   return (
@@ -48,6 +49,7 @@ function App() {
           <Route path="cart" element={<CartPage />} />
           <Route path="checkout" element={<CheckoutPage />} />
           <Route path="orders" element={<OrderHistoryPage />} />
+          <Route path="about" element={<About />} />
         </Route>
         {/* Trang admin không có Navbar, Footer */}
         <Route path="/admin" element={<AdminLayout />}>

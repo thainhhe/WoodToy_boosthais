@@ -26,14 +26,14 @@ export default function Navbar() {
   const userMenuRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const menuItems = [
     { name: "Trang chủ", to: "/", hash: "" },
-    { name: "Về chúng tôi", to: "/", hash: "about" },
+    { name: "Về chúng tôi", to: "/about", hash: "" },
     { name: "Sản phẩm", to: "/", hash: "products" },
     { name: "Đội ngũ", to: "/", hash: "team" },
   ];
-  
+
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const cartItemCount = useAuthStore((state) => state.cartItemCount);
@@ -65,17 +65,18 @@ export default function Navbar() {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    
+
     setTimeout(() => {
       const element = document.getElementById(hash);
       if (element) {
         const navbarHeight = 80; // Height của navbar
         const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - navbarHeight;
+        const offsetPosition =
+          elementPosition + window.pageYOffset - navbarHeight;
 
         window.scrollTo({
           top: offsetPosition,
-          behavior: "smooth"
+          behavior: "smooth",
         });
       }
     }, delay);
@@ -85,7 +86,12 @@ export default function Navbar() {
   const handleMenuClick = (e, item) => {
     e.preventDefault();
     setIsOpen(false); // Đóng mobile menu
-    
+
+    if (item.to === "/about") {
+      navigate("/about");
+      return;
+    }
+
     if (location.pathname !== item.to) {
       // Nếu không ở trang home, navigate về home trước
       if (item.hash) {
@@ -102,8 +108,8 @@ export default function Navbar() {
 
   // Xử lý scroll khi URL hash thay đổi hoặc navigate
   useEffect(() => {
-    if (location.pathname === '/') {
-      const hash = location.hash.replace('#', '');
+    if (location.pathname === "/") {
+      const hash = location.hash.replace("#", "");
       if (hash) {
         // Delay lớn hơn khi navigate từ trang khác
         scrollToSection(hash, 300);
@@ -118,14 +124,17 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md shadow-md sticky top-0 z-50">
+    <nav className="bg-[#4B0F0F] sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <span className="text-3xl font-bold text-brand-primary">
-              WoodToys
-            </span>
+            <img
+              src="/logo_nav.png"
+              alt="WoodToys Logo"
+              className="h-40 w-auto object-contain"
+              style={{ maxHeight: 120 }}
+            />
           </Link>
 
           {/* Menu chính (Desktop) */}
@@ -135,7 +144,7 @@ export default function Navbar() {
                 key={item.name}
                 href={item.hash ? `${item.to}#${item.hash}` : item.to}
                 onClick={(e) => handleMenuClick(e, item)}
-                className="font-medium text-brand-text hover:text-brand-secondary transition duration-300 cursor-pointer"
+                className="font-medium text-white hover:text-amber-300 transition duration-300 cursor-pointer"
               >
                 {item.name}
               </a>
@@ -144,18 +153,10 @@ export default function Navbar() {
 
           {/* Phần bên phải Navbar (Desktop) */}
           <div className="hidden md:flex items-center space-x-4">
-            {/* Nút Khám Phá */}
-            <button 
-              onClick={(e) => handleMenuClick(e, { to: "/", hash: "products" })}
-              className="bg-brand-secondary text-white font-bold py-2 px-6 rounded-full hover:bg-opacity-90 transition duration-300"
-            >
-              Khám Phá
-            </button>
-
             {/* Link Giỏ hàng */}
             <Link
               to="/cart"
-              className="relative p-2 text-gray-600 hover:text-brand-secondary"
+              className="relative p-2 text-white hover:text-amber-300"
             >
               <CartIcon />
               {cartItemCount > 0 && (
@@ -170,13 +171,13 @@ export default function Navbar() {
               <>
                 <Link
                   to="/login"
-                  className="font-bold text-brand-secondary px-4 py-2 hover:underline"
+                  className="font-bold text-white px-4 py-2 hover:underline"
                 >
                   Đăng nhập
                 </Link>
                 <Link
                   to="/register"
-                  className="font-bold text-brand-secondary px-4 py-2 hover:underline"
+                  className="font-bold text-white px-4 py-2 hover:underline"
                 >
                   Đăng ký
                 </Link>
@@ -188,7 +189,7 @@ export default function Navbar() {
                 {/* Thêm ref */}
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-1 focus:outline-none p-1 rounded-full hover:bg-gray-100 transition duration-150"
+                  className="flex items-center space-x-1 focus:outline-none p-1 rounded-full hover:bg-white/10 transition duration-150"
                   aria-expanded={isUserMenuOpen}
                   aria-haspopup="true"
                 >
@@ -196,23 +197,23 @@ export default function Navbar() {
                     <img
                       src={user.avatar}
                       alt={user.name}
-                      className="w-8 h-8 rounded-full object-cover" // Thêm object-cover
+                      className="w-8 h-8 rounded-full object-cover border-2 border-white"
                     />
                   ) : (
                     // Placeholder avatar
-                    <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-200">
-                      <span className="text-sm font-medium leading-none text-gray-600">
+                    <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-white/30">
+                      <span className="text-sm font-medium leading-none text-white">
                         {user.name.charAt(0).toUpperCase()}
                       </span>
                     </span>
                   )}
                   {/* Tên user (ẩn trên màn hình nhỏ hơn lg) */}
-                  <span className="font-medium text-sm text-gray-700 hidden lg:block">
+                  <span className="font-medium text-sm text-white hidden lg:block">
                     {user.name}
                   </span>
                   {/* Icon mũi tên */}
                   <svg
-                    className={`w-4 h-4 text-gray-600 transition-transform duration-200 ${
+                    className={`w-4 h-4 text-white transition-transform duration-200 ${
                       isUserMenuOpen ? "rotate-180" : ""
                     }`}
                     fill="none"
@@ -316,7 +317,7 @@ export default function Navbar() {
             </Link>
 
             {/* Nút khám phá mobile */}
-            <button 
+            <button
               onClick={(e) => handleMenuClick(e, { to: "/", hash: "products" })}
               className="w-full mt-2 bg-brand-secondary text-white font-bold py-2 px-6 rounded-full hover:bg-opacity-90 transition duration-300"
             >
