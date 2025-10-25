@@ -11,6 +11,7 @@ import productRoutes from "./routes/productRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import blogRoutes from "./routes/blogRoutes.js";
 
 dotenv.config();
 
@@ -24,8 +25,9 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Increase payload limit for large blog content (default is 100kb)
+app.use(express.json({ limit: "50mb" })); // Allow up to 50MB JSON payload
+app.use(express.urlencoded({ extended: true, limit: "50mb" })); // Allow up to 50MB form data
 
 // 3. Loại bỏ đoạn code mongoose.connect() cũ ở đây
 
@@ -44,6 +46,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/blogs", blogRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({ 
