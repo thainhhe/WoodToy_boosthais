@@ -129,7 +129,7 @@ export default function BlogAdminList() {
                 </td>
                 <td>
                   <Link
-                    to={`/blogs/${blog.slug || blog._id}`}
+                    to={`/blogs/${blog._id}`}
                     className="text-blue-500 hover:underline mr-2"
                   >
                     Xem

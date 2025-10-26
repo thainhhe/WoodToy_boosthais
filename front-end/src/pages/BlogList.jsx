@@ -45,7 +45,7 @@ export default function BlogList() {
           {blogs.map((blog) => (
             <Link
               key={blog._id}
-              to={`/blogs/${blog.slug || blog._id}`}
+              to={`/blogs/${blog._id}`}
               className="block bg-white rounded-xl shadow p-4 hover:shadow-lg transition"
             >
               <img

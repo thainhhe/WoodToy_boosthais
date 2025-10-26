@@ -10,12 +10,16 @@ export default function BlogDetail() {
 
   useEffect(() => {
     setLoading(true);
+    console.log("🔍 Đang gọi API getBlogById với id:", id);
     getBlogById(id)
       .then((res) => {
+        console.log("✅ API response:", res.data);
         setBlog(res.data.data.blog);
         setLoading(false);
       })
       .catch((err) => {
+        console.error("❌ API error:", err);
+        console.error("❌ Error response:", err.response?.data);
         setError("Không tìm thấy bài viết");
         setLoading(false);
       });

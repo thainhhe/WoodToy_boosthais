@@ -83,19 +83,26 @@ export const getBlogs = async (req, res) => {
 };
 
 // @desc    Get single blog by ID or slug
-// @route   GET /api/blogs/:identifier (can be ID or slug)
+// @route   GET /api/blogs/:id (can be ID or slug)
 // @access  Public
 export const getBlogByIdentifier = async (req, res) => {
   try {
-    const { identifier } = req.params;
+    const { id } = req.params;
+    let blog = null;
 
-    // Try to find by ID first, then by slug
-    let blog = await Blog.findById(identifier)
-      .populate("author", "name email avatar role")
-      .populate("comments.user", "name avatar");
+    // Check if id is a valid MongoDB ObjectId (24 hex characters)
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id);
 
+    if (isValidObjectId) {
+      // Try to find by ID first
+      blog = await Blog.findById(id)
+        .populate("author", "name email avatar role")
+        .populate("comments.user", "name avatar");
+    }
+
+    // If not found by ID, try to find by slug
     if (!blog) {
-      blog = await Blog.findOne({ slug: identifier })
+      blog = await Blog.findOne({ slug: id })
         .populate("author", "name email avatar role")
         .populate("comments.user", "name avatar");
     }
