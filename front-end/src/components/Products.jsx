@@ -168,7 +168,7 @@ export default function Products() {
                             : "text-gray-400 text-sm line-clamp-3"
                         }`}
                       >
-                        {product.story || product.description}
+                        {product.description}
                       </div>
                       {isActive && (
                         <div

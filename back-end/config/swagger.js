@@ -52,11 +52,69 @@ const options = {
               maxLength: 2000,
               example: "A beautiful handcrafted wooden puzzle for children",
             },
-            story: {
-              type: "string",
-              description: "Product story/history",
-              maxLength: 5000,
-              example: "Handcrafted by local artisans using sustainable wood from responsibly managed forests. Each piece is unique and tells a story of traditional craftsmanship passed down through generations.",
+            storyBlocks: {
+              type: "array",
+              description: "Rich story content with text and images interleaved",
+              maxItems: 50,
+              items: {
+                $ref: "#/components/schemas/StoryBlock",
+              },
+            },
+            images: {
+              type: "array",
+              description: "Product images",
+              maxItems: 10,
+              items: {
+                type: "object",
+                properties: {
+                  url: {
+                    type: "string",
+                    description: "Image URL from Cloudinary",
+                    example: "https://res.cloudinary.com/your-cloud/image/upload/v123/products/img.jpg",
+                  },
+                  publicId: {
+                    type: "string",
+                    description: "Cloudinary public ID",
+                    example: "products/img_abc123",
+                  },
+                  alt: {
+                    type: "string",
+                    description: "Alt text for SEO",
+                    example: "Wooden Animal Puzzle - Image 1",
+                  },
+                  isPrimary: {
+                    type: "boolean",
+                    description: "Is this the primary image",
+                    example: true,
+                  },
+                },
+              },
+            },
+            video: {
+              type: "object",
+              description: "Product video",
+              properties: {
+                url: {
+                  type: "string",
+                  description: "Video URL from Cloudinary",
+                  example: "https://res.cloudinary.com/your-cloud/video/upload/v123/products/vid.mp4",
+                },
+                publicId: {
+                  type: "string",
+                  description: "Cloudinary public ID",
+                  example: "products/video_abc123",
+                },
+                thumbnail: {
+                  type: "string",
+                  description: "Video thumbnail URL",
+                  example: "https://res.cloudinary.com/your-cloud/video/upload/v123/products/vid.jpg",
+                },
+                duration: {
+                  type: "number",
+                  description: "Video duration in seconds",
+                  example: 120,
+                },
+              },
             },
             price: {
               type: "number",
@@ -85,6 +143,70 @@ const options = {
               type: "string",
               format: "date-time",
               description: "Product creation timestamp",
+            },
+          },
+        },
+        StoryBlock: {
+          type: "object",
+          required: ["type", "order"],
+          properties: {
+            type: {
+              type: "string",
+              enum: ["text", "image"],
+              description: "Block type",
+              example: "text",
+            },
+            order: {
+              type: "number",
+              description: "Display order (0, 1, 2, ...)",
+              minimum: 0,
+              example: 0,
+            },
+            content: {
+              type: "string",
+              description: "Text content (for text blocks only)",
+              maxLength: 5000,
+              example: "Each toy is carefully crafted by skilled artisans with over 20 years of experience...",
+            },
+            image: {
+              type: "object",
+              description: "Image data (for image blocks only)",
+              properties: {
+                url: {
+                  type: "string",
+                  description: "Image URL from Cloudinary",
+                  example: "https://res.cloudinary.com/your-cloud/image/upload/v123/products/stories/story_img.jpg",
+                },
+                publicId: {
+                  type: "string",
+                  description: "Cloudinary public ID",
+                  example: "products/stories/story_img_abc123",
+                },
+                caption: {
+                  type: "string",
+                  description: "Image caption/description",
+                  maxLength: 200,
+                  example: "Artisan crafting wooden toy by hand",
+                },
+                alt: {
+                  type: "string",
+                  description: "Alt text for SEO",
+                  maxLength: 100,
+                  example: "wooden-toy-crafting-process",
+                },
+              },
+            },
+            caption: {
+              type: "string",
+              description: "Caption for image blocks",
+              maxLength: 200,
+              example: "Artisan crafting wooden toy by hand",
+            },
+            alt: {
+              type: "string",
+              description: "Alt text for image blocks (SEO)",
+              maxLength: 100,
+              example: "wooden-toy-crafting-process",
             },
           },
         },

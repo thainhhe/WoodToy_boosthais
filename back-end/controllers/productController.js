@@ -61,7 +61,7 @@ const getProductById = async (req, res) => {
 // @access  Public (hoặc Private nếu cần authentication)
 const createProduct = async (req, res) => {
   try {
-    const { name, description, story, price, category, stock } = req.body;
+    const { name, description, price, category, stock, storyBlocks } = req.body;
 
     // Validate required fields
     if (!name || price === undefined) {
@@ -82,17 +82,39 @@ const createProduct = async (req, res) => {
     const productData = {
       name,
       description,
-      story,
       price,
       category,
       stock,
       images: [],
       video: null,
+      storyBlocks: [],
     };
 
+    // Parse storyBlocks if provided (from form-data)
+    if (storyBlocks) {
+      try {
+        productData.storyBlocks = typeof storyBlocks === 'string' 
+          ? JSON.parse(storyBlocks) 
+          : storyBlocks;
+      } catch (parseError) {
+        return sendValidationError(res, ["Invalid storyBlocks format. Must be valid JSON array"]);
+      }
+    }
+
+    // Organize uploaded files by field name (since we use .any() in middleware)
+    const filesByField = {};
+    if (req.files && Array.isArray(req.files)) {
+      req.files.forEach(file => {
+        if (!filesByField[file.fieldname]) {
+          filesByField[file.fieldname] = [];
+        }
+        filesByField[file.fieldname].push(file);
+      });
+    }
+
     // Upload images if provided
-    if (req.files && req.files.images) {
-      const imageFiles = req.files.images;
+    if (filesByField.images) {
+      const imageFiles = filesByField.images;
       
       try {
         const uploadedImages = await uploadMultipleImages(
@@ -112,8 +134,8 @@ const createProduct = async (req, res) => {
     }
 
     // Upload video if provided
-    if (req.files && req.files.video && req.files.video[0]) {
-      const videoFile = req.files.video[0];
+    if (filesByField.video && filesByField.video[0]) {
+      const videoFile = filesByField.video[0];
       
       try {
         const uploadedVideo = await uploadVideo(videoFile.buffer, "products");
@@ -130,6 +152,48 @@ const createProduct = async (req, res) => {
           await deleteMultipleImages(productData.images.map(img => img.publicId));
         }
         return sendValidationError(res, [`Failed to upload video: ${uploadError.message}`]);
+      }
+    }
+
+    // Upload story images if provided (storyImage_0, storyImage_1, etc.)
+    if (productData.storyBlocks.length > 0) {
+      try {
+        // Find all story image files (fieldname pattern: storyImage_0, storyImage_1, etc.)
+        const storyImageEntries = Object.entries(filesByField).filter(([fieldname]) => 
+          fieldname.startsWith('storyImage_')
+        );
+        
+        // Upload and map story images to blocks
+        for (const [fieldname, files] of storyImageEntries) {
+          if (files && files[0]) {
+            const blockIndex = parseInt(fieldname.replace('storyImage_', ''));
+            
+            if (blockIndex >= 0 && blockIndex < productData.storyBlocks.length) {
+              const block = productData.storyBlocks[blockIndex];
+              
+              if (block.type === "image") {
+                // Upload this story image
+                const uploadedImg = await uploadImage(files[0].buffer, "products/stories");
+                
+                block.image = {
+                  url: uploadedImg.url,
+                  publicId: uploadedImg.publicId,
+                  caption: block.caption || "",
+                  alt: block.alt || `${name} story image ${blockIndex + 1}`,
+                };
+              }
+            }
+          }
+        }
+      } catch (uploadError) {
+        // Clean up uploaded files on error
+        if (productData.images.length > 0) {
+          await deleteMultipleImages(productData.images.map(img => img.publicId));
+        }
+        if (productData.video) {
+          await deleteVideo(productData.video.publicId);
+        }
+        return sendValidationError(res, [`Failed to upload story images: ${uploadError.message}`]);
       }
     }
 
@@ -164,12 +228,23 @@ const createProduct = async (req, res) => {
 // @access  Public (hoặc Private nếu cần authentication)
 const updateProduct = async (req, res) => {
   try {
-    const { name, description, story, price, category, stock, deletedImages, deleteVideo } = req.body;
+    const { name, description, price, category, stock, deletedImages, deleteVideo, storyBlocks, deletedStoryImages } = req.body;
 
     const product = await Product.findById(req.params.id);
 
     if (!product) {
       return sendNotFound(res, RESPONSE_MESSAGES.product.notFound);
+    }
+
+    // Organize uploaded files by field name (since we use .any() in middleware)
+    const filesByField = {};
+    if (req.files && Array.isArray(req.files)) {
+      req.files.forEach(file => {
+        if (!filesByField[file.fieldname]) {
+          filesByField[file.fieldname] = [];
+        }
+        filesByField[file.fieldname].push(file);
+      });
     }
 
     // Validate price if provided
@@ -185,10 +260,47 @@ const updateProduct = async (req, res) => {
     // Update basic fields
     if (name !== undefined) product.name = name;
     if (description !== undefined) product.description = description;
-    if (story !== undefined) product.story = story;
     if (price !== undefined) product.price = price;
     if (category !== undefined) product.category = category;
     if (stock !== undefined) product.stock = stock;
+
+    // Update storyBlocks if provided
+    if (storyBlocks) {
+      try {
+        const parsedStoryBlocks = typeof storyBlocks === 'string' 
+          ? JSON.parse(storyBlocks) 
+          : storyBlocks;
+        product.storyBlocks = parsedStoryBlocks;
+      } catch (parseError) {
+        return sendValidationError(res, ["Invalid storyBlocks format. Must be valid JSON array"]);
+      }
+    }
+
+    // Delete specific story images if requested
+    if (deletedStoryImages) {
+      try {
+        const imagesToDelete = JSON.parse(deletedStoryImages);
+        
+        // Delete from Cloudinary
+        for (const publicId of imagesToDelete) {
+          await deleteMedia(publicId, "image");
+        }
+        
+        // Remove from storyBlocks
+        product.storyBlocks = product.storyBlocks.map(block => {
+          if (block.type === "image" && imagesToDelete.includes(block.image?.publicId)) {
+            // Remove the image data but keep the block structure (or remove entire block)
+            return { ...block.toObject(), image: undefined };
+          }
+          return block;
+        }).filter(block => {
+          // Remove empty image blocks
+          return !(block.type === "image" && !block.image);
+        });
+      } catch (error) {
+        console.error("Error deleting story images:", error);
+      }
+    }
 
     // Handle image deletion
     if (deletedImages) {
@@ -206,8 +318,8 @@ const updateProduct = async (req, res) => {
     }
 
     // Handle new image uploads
-    if (req.files && req.files.images) {
-      const imageFiles = req.files.images;
+    if (filesByField.images) {
+      const imageFiles = filesByField.images;
       
       try {
         const uploadedImages = await uploadMultipleImages(
@@ -235,13 +347,13 @@ const updateProduct = async (req, res) => {
     }
 
     // Handle new video upload
-    if (req.files && req.files.video && req.files.video[0]) {
+    if (filesByField.video && filesByField.video[0]) {
       // Delete old video if exists
       if (product.video) {
         await deleteVideo(product.video.publicId);
       }
       
-      const videoFile = req.files.video[0];
+      const videoFile = filesByField.video[0];
       
       try {
         const uploadedVideo = await uploadVideo(videoFile.buffer, "products");
@@ -254,6 +366,46 @@ const updateProduct = async (req, res) => {
         };
       } catch (uploadError) {
         return sendValidationError(res, [`Failed to upload video: ${uploadError.message}`]);
+      }
+    }
+
+    // Upload new images for story blocks if provided (storyImage_0, storyImage_1, etc.)
+    if (product.storyBlocks.length > 0) {
+      try {
+        // Find all story image files (fieldname pattern: storyImage_0, storyImage_1, etc.)
+        const storyImageEntries = Object.entries(filesByField).filter(([fieldname]) => 
+          fieldname.startsWith('storyImage_')
+        );
+        
+        // Upload and map story images to blocks
+        for (const [fieldname, files] of storyImageEntries) {
+          if (files && files[0]) {
+            const blockIndex = parseInt(fieldname.replace('storyImage_', ''));
+            
+            if (blockIndex >= 0 && blockIndex < product.storyBlocks.length) {
+              const block = product.storyBlocks[blockIndex];
+              
+              if (block.type === "image") {
+                // Delete old image if exists
+                if (block.image?.publicId) {
+                  await deleteMedia(block.image.publicId, "image");
+                }
+                
+                // Upload new story image
+                const uploadedImg = await uploadImage(files[0].buffer, "products/stories");
+                
+                block.image = {
+                  url: uploadedImg.url,
+                  publicId: uploadedImg.publicId,
+                  caption: block.caption || "",
+                  alt: block.alt || `${product.name} story image ${blockIndex + 1}`,
+                };
+              }
+            }
+          }
+        }
+      } catch (uploadError) {
+        return sendValidationError(res, [`Failed to upload story images: ${uploadError.message}`]);
       }
     }
 
@@ -286,6 +438,17 @@ const deleteProduct = async (req, res) => {
     // Delete video from Cloudinary
     if (product.video) {
       await deleteVideo(product.video.publicId);
+    }
+
+    // Delete all story images from Cloudinary
+    if (product.storyBlocks && product.storyBlocks.length > 0) {
+      const storyImagePublicIds = product.storyBlocks
+        .filter(block => block.type === "image" && block.image?.publicId)
+        .map(block => block.image.publicId);
+      
+      if (storyImagePublicIds.length > 0) {
+        await deleteMultipleImages(storyImagePublicIds);
+      }
     }
 
     // Delete old single image if exists (backward compatibility)

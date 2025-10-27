@@ -241,18 +241,6 @@ export default function ProductDetail() {
                     {product.description}
                   </p>
                 </div>
-
-                {/* Story */}
-                {product.story && (
-                  <div className="mb-6 bg-blue-50 rounded-xl p-4 border border-blue-100">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                      <span>✨</span> Câu chuyện
-                    </h3>
-                    <p className="text-gray-700 leading-relaxed">
-                      {product.story}
-                    </p>
-                  </div>
-                )}
               </div>
 
               {/* Add to Cart Button */}
@@ -304,6 +292,78 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
+
+        {/* Story Blocks Section - Magazine Style Article */}
+        {product.storyBlocks && product.storyBlocks.length > 0 && (
+          <div className="mt-8 bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-8 py-6">
+              <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                <span>📖</span> Câu chuyện sản phẩm
+              </h2>
+              <p className="text-amber-50 mt-2">
+                Khám phá câu chuyện đằng sau sản phẩm thủ công này
+              </p>
+            </div>
+            
+            {/* Magazine-style content - text và images flow together */}
+            <article className="px-8 sm:px-12 py-10 max-w-4xl mx-auto">
+              <div className="prose prose-lg max-w-none story-content">
+                {product.storyBlocks
+                  .sort((a, b) => a.order - b.order)
+                  .map((block, index) => {
+                    if (block.type === "text") {
+                      // Text paragraphs flow naturally like a magazine article
+                      return (
+                        <p 
+                          key={block._id || index}
+                          className="animate-fadeIn"
+                          style={{ animationDelay: `${index * 100}ms` }}
+                        >
+                          {block.content}
+                        </p>
+                      );
+                    } else if (block.type === "image" && block.image) {
+                      // Images embedded naturally within the text flow
+                      return (
+                        <figure 
+                          key={block._id || index}
+                          className="animate-fadeIn"
+                          style={{ animationDelay: `${index * 100}ms` }}
+                        >
+                          <img
+                            src={block.image.url}
+                            alt={block.image.alt || `Story image ${index + 1}`}
+                            className="w-full h-auto object-cover rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300"
+                            loading="lazy"
+                          />
+                          {block.image.caption && (
+                            <figcaption className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-3 text-center border-t border-gray-200 rounded-b-xl">
+                              <p className="text-gray-600 italic text-sm flex items-center justify-center gap-2">
+                                <svg className="w-4 h-4 text-amber-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                                </svg>
+                                {block.image.caption}
+                              </p>
+                            </figcaption>
+                          )}
+                        </figure>
+                      );
+                    }
+                    return null;
+                  })}
+              </div>
+            </article>
+
+            {/* Decorative Bottom */}
+            <div className="bg-gradient-to-r from-amber-100 via-orange-100 to-yellow-100 px-8 py-4">
+              <p className="text-center text-gray-700 text-sm flex items-center justify-center gap-2">
+                <span>✨</span>
+                Mỗi sản phẩm đều mang trong mình một câu chuyện độc đáo
+                <span>✨</span>
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

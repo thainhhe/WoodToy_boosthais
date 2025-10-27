@@ -78,9 +78,10 @@ export const uploadVideo = multer({
 }).single("video"); // Field name 'video'
 
 /**
- * Upload product media (images + video)
+ * Upload product media (images + video + story images)
  * images: multiple files (max 10)
  * video: single file
+ * storyImage_0, storyImage_1, ... storyImage_29: individual files for story blocks
  */
 export const uploadProductMedia = multer({
   storage,
@@ -88,10 +89,7 @@ export const uploadProductMedia = multer({
   limits: {
     fileSize: 100 * 1024 * 1024, // 100MB max (for video)
   },
-}).fields([
-  { name: "images", maxCount: 10 },
-  { name: "video", maxCount: 1 },
-]);
+}).any(); // Use .any() to accept dynamic field names like storyImage_0, storyImage_1, etc.
 
 /**
  * Upload single avatar image for user profile

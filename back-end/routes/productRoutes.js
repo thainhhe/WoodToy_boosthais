@@ -50,8 +50,8 @@ import { uploadProductMedia, uploadImages, handleMulterError } from "../middlewa
  *       500:
  *         description: Server Error
  *   post:
- *     summary: Create a new product with images and video
- *     description: Add a new product with multiple images (max 10) and one video
+ *     summary: Create a new product with images, video, and story blocks
+ *     description: Add a new product with multiple images (max 10), one video, and rich story content (text + images interleaved)
  *     tags: [Products]
  *     requestBody:
  *       required: true
@@ -94,6 +94,18 @@ import { uploadProductMedia, uploadImages, handleMulterError } from "../middlewa
  *                 type: string
  *                 format: binary
  *                 description: "Product video (max 100MB)"
+ *               storyBlocks:
+ *                 type: string
+ *                 description: "JSON array of story blocks (max 50 blocks). Example: [{type:'text',order:0,content:'...'},{type:'image',order:1,caption:'...',alt:'...'}]"
+ *                 example: '[{"type":"text","order":0,"content":"This toy is handcrafted..."},{"type":"image","order":1,"caption":"Artisan at work","alt":"wooden-toy-making"}]'
+ *               storyImage_0:
+ *                 type: string
+ *                 format: binary
+ *                 description: "Story image for block index 0 (if block type is 'image')"
+ *               storyImage_1:
+ *                 type: string
+ *                 format: binary
+ *                 description: "Story image for block index 1 (max 30 story images total)"
  *     responses:
  *       201:
  *         description: Product created successfully
@@ -130,7 +142,7 @@ router.route("/")
  *         description: Server Error
  *   put:
  *     summary: Update a product
- *     description: Update an existing product with optional new images/video
+ *     description: Update an existing product with optional new images/video/story blocks
  *     tags: [Products]
  *     parameters:
  *       - in: path
@@ -176,6 +188,22 @@ router.route("/")
  *                 type: string
  *                 enum: ["true", "false"]
  *                 description: "Set to 'true' to delete video"
+ *               storyBlocks:
+ *                 type: string
+ *                 description: "Updated JSON array of story blocks (replaces existing). Example: [{type:'text',order:0,content:'...'},{type:'image',order:1,image:{...},caption:'...',alt:'...'}]"
+ *                 example: '[{"type":"text","order":0,"content":"Updated content..."},{"type":"image","order":1,"caption":"New caption","alt":"new-alt"}]'
+ *               deletedStoryImages:
+ *                 type: string
+ *                 description: "JSON array of story image publicIds to delete"
+ *                 example: '["products/stories/story_abc123"]'
+ *               storyImage_0:
+ *                 type: string
+ *                 format: binary
+ *                 description: "New story image for block 0 (replaces existing if any)"
+ *               storyImage_1:
+ *                 type: string
+ *                 format: binary
+ *                 description: "New story image for block 1"
  *     responses:
  *       200:
  *         description: Product updated successfully
