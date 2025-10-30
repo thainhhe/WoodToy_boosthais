@@ -23,8 +23,32 @@ validateCloudinaryConfig();
 
 const app = express();
 
+// CORS Configuration - Allow all origins in development
+if (process.env.NODE_ENV === 'production') {
+  const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    process.env.CORS_ORIGIN,
+  ].filter(Boolean);
+
+  const corsOptions = {
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+    optionsSuccessStatus: 200,
+  };
+  app.use(cors(corsOptions));
+} else {
+  // Development - allow all origins
+  app.use(cors());
+}
+
 // Middleware
-app.use(cors());
 // Increase payload limit for large blog content (default is 100kb)
 app.use(express.json({ limit: "50mb" })); // Allow up to 50MB JSON payload
 app.use(express.urlencoded({ extended: true, limit: "50mb" })); // Allow up to 50MB form data
@@ -38,6 +62,9 @@ app.use(
   swaggerUi.setup(swaggerSpec, {
     customCss: ".swagger-ui .topbar { display: none }",
     customSiteTitle: "Wooden Toys API Docs",
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
   })
 );
 

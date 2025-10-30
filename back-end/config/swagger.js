@@ -17,7 +17,7 @@ const options = {
         description: "Development server",
       },
       {
-        url: "https://your-production-url.com",
+        url: "https://2handshop.id.vn",
         description: "Production server",
       },
     ],
