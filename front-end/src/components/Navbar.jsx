@@ -30,9 +30,9 @@ export default function Navbar() {
   const menuItems = [
     { name: "Trang chủ", to: "/", hash: "" },
     { name: "Về chúng tôi", to: "/about", hash: "" },
-    { name: "Sản phẩm", to: "/", hash: "products" },
+    { name: "Câu chuyện", to: "/", hash: "stories" },
+    { name: "Sản phẩm", to: "/products", hash: "" },
     { name: "Blog", to: "/blogs", hash: "" },
-    { name: "Đội ngũ", to: "/", hash: "team" },
   ];
 
   const user = useAuthStore((state) => state.user);

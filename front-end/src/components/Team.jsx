@@ -1,46 +1,152 @@
-const teamMembers = [
+import { useState, useEffect, useRef } from "react";
+
+const feedbacks = [
   {
-    name: "Nguyễn Văn An",
-    role: "Nhà sáng lập & Thiết kế",
-    image: "https://placehold.co/400x400/FFF8F2/4F4F4F?text=An",
+    name: "Nguyễn Văn A.",
+    role: "Bố của bé Minh",
+    avatar: "https://placehold.co/80x80/FFF8F2/4F4F4F?text=NA",
+    text: "Sản phẩm gỗ rất an toàn và đẹp — bé chơi cả ngày mà không chán. Chất lượng vượt mong đợi!",
   },
   {
-    name: "Trần Thị Bình",
-    role: "Chuyên gia phát triển trẻ em",
-    image: "https://placehold.co/400x400/FFF8F2/4F4F4F?text=Bình",
+    name: "Trần Thị B.",
+    role: "Mẹ của bé An",
+    avatar: "https://placehold.co/80x80/FFF8F2/4F4F4F?text=TB",
+    text: "Giao hàng nhanh, đóng gói cẩn thận. Các chi tiết rất tinh xảo, hợp với phát triển kỹ năng cho trẻ.",
   },
   {
-    name: "Lê Minh Cường",
-    role: "Nghệ nhân chế tác",
-    image: "https://placehold.co/400x400/FFF8F2/4F4F4F?text=Cường",
+    name: "Lê M. C.",
+    role: "Giáo viên mầm non",
+    avatar: "https://placehold.co/80x80/FFF8F2/4F4F4F?text=LC",
+    text: "Đồ chơi có tính giáo dục cao, kích thích tư duy và sáng tạo. Tôi giới thiệu cho phụ huynh trong lớp.",
   },
   {
-    name: "Phạm Thu Duyên",
-    role: "Phụ trách cộng đồng",
-    image: "https://placehold.co/400x400/FFF8F2/4F4F4F?text=Duyên",
+    name: "Phạm T. D.",
+    role: "Khách hàng",
+    avatar: "https://placehold.co/80x80/FFF8F2/4F4F4F?text=PD",
+    text: "Mua làm quà tặng và ai cũng khen. Sản phẩm đẹp, dễ sử dụng và bền.",
+  },
+  {
+    name: "Hoàng V.",
+    role: "Bố của bé Linh",
+    avatar: "https://placehold.co/80x80/FFF8F2/4F4F4F?text=HV",
+    text: "Tính năng an toàn rõ ràng, vật liệu tự nhiên. Giá cả hợp lý so với chất lượng.",
+  },
+  {
+    name: "Đặng H.",
+    role: "Mẹ",
+    avatar: "https://placehold.co/80x80/FFF8F2/4F4F4F?text=DH",
+    text: "Dịch vụ khách hàng nhiệt tình, tôi rất hài lòng với trải nghiệm mua hàng.",
   },
 ];
 
 export default function Team() {
+  const [current, setCurrent] = useState(0);
+  const total = feedbacks.length;
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    startAutoplay();
+    return () => stopAutoplay();
+  }, [current]);
+
+  const startAutoplay = () => {
+    stopAutoplay();
+    intervalRef.current = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % total);
+    }, 4000);
+  };
+
+  const stopAutoplay = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
+  const prev = () => setCurrent((p) => (p - 1 + total) % total);
+  const next = () => setCurrent((p) => (p + 1) % total);
+
+  const getVisible = () => {
+    // show center + one on each side for nicer carousel feel
+    return [(current - 1 + total) % total, current, (current + 1) % total];
+  };
+
+  const visible = getVisible();
+
   return (
-    <section id="team" className="py-24 bg-brand-light">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-4xl font-bold text-brand-primary mb-12">
-          Đội ngũ VietMyth Luminarts
+    <section id="team" className="py-16 bg-brand-light">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 className="text-4xl font-bold text-brand-primary mb-8">
+          Phản hồi khách hàng
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {teamMembers.map((member) => (
-            <div key={member.name}>
-              <img
-                src={member.image}
-                alt={member.name}
-                className="w-48 h-48 rounded-full mx-auto mb-4 object-cover shadow-lg"
-              />
-              <h3 className="text-xl font-bold text-brand-primary">
-                {member.name}
-              </h3>
-              <p className="text-brand-secondary">{member.role}</p>
-            </div>
+
+        <div className="relative">
+          <button
+            onClick={prev}
+            aria-label="Previous"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white/80 p-2 rounded-full shadow-md hover:bg-white"
+          >
+            ◀
+          </button>
+
+          <div
+            onMouseEnter={stopAutoplay}
+            onMouseLeave={startAutoplay}
+            className="w-full flex items-center justify-center gap-6 overflow-hidden py-6"
+          >
+            {visible.map((idx, i) => {
+              const fb = feedbacks[idx];
+              const isCenter = idx === current;
+              return (
+                <div
+                  key={fb.name}
+                  className={`transition-all duration-700 ease-in-out bg-white rounded-2xl p-6 shadow-lg max-w-md ${
+                    isCenter
+                      ? "scale-100 opacity-100 z-10"
+                      : "scale-90 opacity-60 z-0"
+                  }`}
+                  style={{ minWidth: isCenter ? 420 : 320 }}
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <img
+                      src={fb.avatar}
+                      alt={fb.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                    <div className="text-left">
+                      <div className="font-bold text-sm text-brand-primary">
+                        {fb.name}
+                      </div>
+                      <div className="text-xs text-gray-500">{fb.role}</div>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 text-base leading-relaxed">
+                    “{fb.text}”
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={next}
+            aria-label="Next"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white/80 p-2 rounded-full shadow-md hover:bg-white"
+          >
+            ▶
+          </button>
+        </div>
+
+        <div className="flex justify-center gap-2 mt-6">
+          {feedbacks.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrent(idx)}
+              className={`w-3 h-3 rounded-full ${
+                idx === current ? "bg-amber-600" : "bg-gray-300"
+              }`}
+              aria-label={`Go to feedback ${idx + 1}`}
+            />
           ))}
         </div>
       </div>

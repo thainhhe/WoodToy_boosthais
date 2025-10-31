@@ -25,12 +25,14 @@ import OrderList from "./pages/admin/OrderList";
 import About from "./components/About";
 import BlogList from "./pages/BlogList";
 import BlogDetail from "./pages/BlogDetail";
+import Products from "./components/Products";
 import BlogAdminList from "./pages/admin/BlogAdminList";
 import BlogCreate from "./pages/admin/BlogCreate";
 import BlogEdit from "./pages/admin/BlogEdit";
 import StoryAdminList from "./pages/admin/StoryAdminList";
 import StoryCreate from "./pages/admin/StoryCreate";
 import StoryEdit from "./pages/admin/StoryEdit";
+import StoryDetail from "./pages/StoryDetail";
 
 function MainLayout() {
   return (
@@ -59,7 +61,9 @@ function App() {
           <Route path="orders" element={<OrderHistoryPage />} />
           <Route path="about" element={<About />} />
           <Route path="blogs" element={<BlogList />} />
+          <Route path="products" element={<Products />} />
           <Route path="blogs/:id" element={<BlogDetail />} />
+          <Route path="stories/:id" element={<StoryDetail />} />
         </Route>
         {/* Trang admin không có Navbar, Footer */}
         <Route path="/admin" element={<AdminLayout />}>

@@ -10,7 +10,7 @@ const socials = [
   },
   {
     name: "Facebook",
-    url: "https://facebook.com/yourpageid", // Thay bằng link Facebook thực tế
+    url: "https://www.facebook.com/profile.php?id=61577231934647", // Thay bằng link Facebook thực tế
     icon: <img src="/OIP.webp" alt="Facebook" className="w-9 h-9" />,
     bg: "bg-white",
     hover: "hover:shadow-lg hover:scale-110",
