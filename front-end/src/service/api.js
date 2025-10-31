@@ -92,9 +92,57 @@ export const getBlogCategories = async () => {
 export const getPopularBlogTags = async (limit = 20) => {
   return axios.get(`${API_URL}/blogs/tags/popular`, { params: { limit } });
 };
-import axios from "axios";
-const API_URL = "http://localhost:5000/api";
 
+// ========== STORY ========== //
+export const getStories = async (params = {}) => {
+  const token = localStorage.getItem("accessToken");
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  return axios.get(`${API_URL}/stories`, { params, headers });
+};
+
+export const getStoryById = async (id) => {
+  const token = localStorage.getItem("accessToken");
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  return axios.get(`${API_URL}/stories/${id}`, { headers });
+};
+
+export const createStory = async (storyData) => {
+  const token = localStorage.getItem("accessToken");
+  return axios.post(`${API_URL}/stories`, storyData, {
+    headers: { 
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${token}` 
+    },
+  });
+};
+
+export const updateStory = async (id, storyData) => {
+  const token = localStorage.getItem("accessToken");
+  return axios.put(`${API_URL}/stories/${id}`, storyData, {
+    headers: { 
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${token}` 
+    },
+  });
+};
+
+export const deleteStory = async (id) => {
+  const token = localStorage.getItem("accessToken");
+  return axios.delete(`${API_URL}/stories/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+// category endpoint removed
+
+export const getPopularStoryTags = async (limit = 20) => {
+  return axios.get(`${API_URL}/stories/tags/popular`, { params: { limit } });
+};
+import axios from "axios";
+
+// Use environment variable or fallback to localhost for development
+// const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL =  "http://localhost:5000/api";
 // ========== AUTH ========== //
 export const login = async (email, password) =>
   axios.post(`${API_URL}/auth/login`, { email, password });

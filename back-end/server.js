@@ -12,6 +12,7 @@ import authRoutes from "./routes/authRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
+import storyRoutes from "./routes/storyRoutes.js";
 
 dotenv.config();
 
@@ -26,7 +27,7 @@ const app = express();
 // CORS Configuration - Allow all origins in development
 if (process.env.NODE_ENV === 'production') {
   const allowedOrigins = [
-    "http://localhost:5173",
+    "http://localhost:5000",
     "http://localhost:3000",
     process.env.CORS_ORIGIN,
   ].filter(Boolean);
@@ -74,6 +75,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/blogs", blogRoutes);
+app.use("/api/stories", storyRoutes);
 
 app.get("/api/health", (req, res) => {
   res.json({ 

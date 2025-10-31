@@ -39,6 +39,9 @@ export default function AdminLayout() {
           <NavLink to="/admin/blogs" className={navLinkClasses}>
             Blogs
           </NavLink>
+          <NavLink to="/admin/stories" className={navLinkClasses}>
+            Stories
+          </NavLink>
           <button
             onClick={handleLogout}
             className="block w-full mt-6 py-2.5 px-4 rounded bg-red-100 text-red-700 font-bold hover:bg-red-200 transition"

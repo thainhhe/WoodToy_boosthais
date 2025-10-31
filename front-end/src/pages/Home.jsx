@@ -1,5 +1,5 @@
 import Hero from "../components/Hero";
-import Products from "../components/Products";
+import Stories from "../components/Stories";
 import Features from "../components/Features";
 import Team from "../components/Team";
 import Introduction from "../components/Introduction";
@@ -11,7 +11,7 @@ export default function Home() {
     <main>
       <Hero />
       <Introduction />
-      <Products />
+      <Stories />
       <Features />
       <Team />
       <FloatingSocial />

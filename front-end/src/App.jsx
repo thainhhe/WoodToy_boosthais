@@ -28,6 +28,9 @@ import BlogDetail from "./pages/BlogDetail";
 import BlogAdminList from "./pages/admin/BlogAdminList";
 import BlogCreate from "./pages/admin/BlogCreate";
 import BlogEdit from "./pages/admin/BlogEdit";
+import StoryAdminList from "./pages/admin/StoryAdminList";
+import StoryCreate from "./pages/admin/StoryCreate";
+import StoryEdit from "./pages/admin/StoryEdit";
 
 function MainLayout() {
   return (
@@ -70,6 +73,9 @@ function App() {
           <Route path="blogs" element={<BlogAdminList />} />
           <Route path="blogs/create" element={<BlogCreate />} />
           <Route path="blogs/:id/edit" element={<BlogEdit />} />
+          <Route path="stories" element={<StoryAdminList />} />
+          <Route path="stories/create" element={<StoryCreate />} />
+          <Route path="stories/:id/edit" element={<StoryEdit />} />
         </Route>
       </Routes>
     </Router>

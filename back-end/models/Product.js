@@ -36,55 +36,6 @@ const videoSchema = new mongoose.Schema({
   },
 }, { _id: false });
 
-// Story block schema for rich story content (text + images)
-const storyBlockSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    enum: ["text", "image"],
-    required: true,
-  },
-  order: {
-    type: Number,
-    required: true,
-    min: 0,
-  },
-  // For text blocks
-  content: {
-    type: String,
-    trim: true,
-    maxlength: [5000, "Text block cannot exceed 5000 characters"],
-    // Required only if type is "text"
-    required: function() {
-      return this.type === "text";
-    },
-  },
-  // For image blocks
-  image: {
-    url: {
-      type: String,
-      required: function() {
-        return this.parent().type === "image";
-      },
-    },
-    publicId: {
-      type: String,
-      required: function() {
-        return this.parent().type === "image";
-      },
-    },
-    caption: {
-      type: String,
-      trim: true,
-      maxlength: [200, "Image caption cannot exceed 200 characters"],
-    },
-    alt: {
-      type: String,
-      trim: true,
-      default: "",
-    },
-  },
-}, { _id: true });
-
 const productSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -96,16 +47,6 @@ const productSchema = new mongoose.Schema({
     type: String,
     trim: true,
     maxlength: [2000, "Description cannot exceed 2000 characters"],
-  },
-  // Rich story content with text and images (replaces simple story field)
-  storyBlocks: {
-    type: [storyBlockSchema],
-    validate: {
-      validator: function(blocks) {
-        return blocks.length <= 50; // Maximum 50 blocks (text + images combined)
-      },
-      message: "Maximum 50 story blocks allowed per product",
-    },
   },
   price: {
     type: Number,
