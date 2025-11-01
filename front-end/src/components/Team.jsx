@@ -2,37 +2,37 @@ import { useState, useEffect, useRef } from "react";
 
 const feedbacks = [
   {
-    name: "Nguyễn Văn A.",
+    name: "Nguyễn Văn Thái",
     role: "Bố của bé Minh",
     avatar: "https://placehold.co/80x80/FFF8F2/4F4F4F?text=NA",
     text: "Sản phẩm gỗ rất an toàn và đẹp — bé chơi cả ngày mà không chán. Chất lượng vượt mong đợi!",
   },
   {
-    name: "Trần Thị B.",
+    name: "Trần Thị Thùy Dung",
     role: "Mẹ của bé An",
     avatar: "https://placehold.co/80x80/FFF8F2/4F4F4F?text=TB",
     text: "Giao hàng nhanh, đóng gói cẩn thận. Các chi tiết rất tinh xảo, hợp với phát triển kỹ năng cho trẻ.",
   },
   {
-    name: "Lê M. C.",
+    name: "Lê Minh Cường",
     role: "Giáo viên mầm non",
     avatar: "https://placehold.co/80x80/FFF8F2/4F4F4F?text=LC",
     text: "Đồ chơi có tính giáo dục cao, kích thích tư duy và sáng tạo. Tôi giới thiệu cho phụ huynh trong lớp.",
   },
   {
-    name: "Phạm T. D.",
+    name: "Phạm Thị Diệu",
     role: "Khách hàng",
     avatar: "https://placehold.co/80x80/FFF8F2/4F4F4F?text=PD",
     text: "Mua làm quà tặng và ai cũng khen. Sản phẩm đẹp, dễ sử dụng và bền.",
   },
   {
-    name: "Hoàng V.",
+    name: "Hoàng Văn Huy",
     role: "Bố của bé Linh",
     avatar: "https://placehold.co/80x80/FFF8F2/4F4F4F?text=HV",
     text: "Tính năng an toàn rõ ràng, vật liệu tự nhiên. Giá cả hợp lý so với chất lượng.",
   },
   {
-    name: "Đặng H.",
+    name: "Đặng Huyền Trang",
     role: "Mẹ",
     avatar: "https://placehold.co/80x80/FFF8F2/4F4F4F?text=DH",
     text: "Dịch vụ khách hàng nhiệt tình, tôi rất hài lòng với trải nghiệm mua hàng.",

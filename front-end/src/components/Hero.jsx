@@ -3,7 +3,9 @@ export default function Hero() {
     <section
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
       style={{ backgroundColor: "#4B0F0F" }}
+      
     >
+      <img src="/image2.png" alt="Background" className="absolute inset-0 z-0 w-full h-full object-cover" />
       <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
         <img
           src="/ani2.png"
