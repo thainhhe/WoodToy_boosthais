@@ -166,11 +166,22 @@ export const createBlog = async (req, res) => {
       images: [],
     };
 
+    // Organize uploaded files by field name (since we use .any() in middleware)
+    const filesByField = {};
+    if (req.files && Array.isArray(req.files)) {
+      req.files.forEach(file => {
+        if (!filesByField[file.fieldname]) {
+          filesByField[file.fieldname] = [];
+        }
+        filesByField[file.fieldname].push(file);
+      });
+    }
+
     // Upload featured image if provided
-    if (req.files && req.files.featuredImage && req.files.featuredImage[0]) {
+    if (filesByField.featuredImage && filesByField.featuredImage[0]) {
       try {
         const uploadedImage = await uploadImage(
-          req.files.featuredImage[0].buffer,
+          filesByField.featuredImage[0].buffer,
           "blogs"
         );
         blogData.featuredImage = uploadedImage.url;
@@ -182,8 +193,8 @@ export const createBlog = async (req, res) => {
     }
 
     // Upload additional images if provided
-    if (req.files && req.files.images) {
-      const imageFiles = req.files.images;
+    if (filesByField.images) {
+      const imageFiles = filesByField.images;
 
       try {
         const uploadedImages = await uploadMultipleImages(
@@ -216,15 +227,17 @@ export const createBlog = async (req, res) => {
     return sendCreated(res, { blog }, "Blog created successfully");
   } catch (error) {
     // Clean up uploaded files on error
-    if (req.files) {
-      if (req.files.featuredImage && req.files.featuredImage[0]?.cloudinary_id) {
-        await deleteMedia(req.files.featuredImage[0].cloudinary_id, "image");
-      }
-      if (req.files.images) {
-        const uploadedImages = req.files.images.filter((f) => f.cloudinary_id);
-        if (uploadedImages.length > 0) {
-          await deleteMultipleImages(uploadedImages.map((f) => f.cloudinary_id));
+    if (req.files && blogData) {
+      // Clean up featured image if it was uploaded
+      if (blogData.featuredImage) {
+        const publicId = extractPublicId(blogData.featuredImage);
+        if (publicId) {
+          await deleteMedia(publicId, "image");
         }
+      }
+      // Clean up images if they were uploaded
+      if (blogData.images && blogData.images.length > 0) {
+        await deleteMultipleImages(blogData.images.map(img => img.publicId));
       }
     }
 
@@ -289,6 +302,17 @@ export const updateBlog = async (req, res) => {
     if (metaTitle !== undefined) blog.metaTitle = metaTitle;
     if (metaDescription !== undefined) blog.metaDescription = metaDescription;
 
+    // Organize uploaded files by field name (since we use .any() in middleware)
+    const filesByField = {};
+    if (req.files && Array.isArray(req.files)) {
+      req.files.forEach(file => {
+        if (!filesByField[file.fieldname]) {
+          filesByField[file.fieldname] = [];
+        }
+        filesByField[file.fieldname].push(file);
+      });
+    }
+
     // Handle featured image removal
     if (removeFeaturedImage === "true" && blog.featuredImage) {
       const publicId = extractPublicId(blog.featuredImage);
@@ -299,7 +323,7 @@ export const updateBlog = async (req, res) => {
     }
 
     // Handle new featured image upload
-    if (req.files && req.files.featuredImage && req.files.featuredImage[0]) {
+    if (filesByField.featuredImage && filesByField.featuredImage[0]) {
       // Delete old featured image if exists
       if (blog.featuredImage) {
         const oldPublicId = extractPublicId(blog.featuredImage);
@@ -310,7 +334,7 @@ export const updateBlog = async (req, res) => {
 
       try {
         const uploadedImage = await uploadImage(
-          req.files.featuredImage[0].buffer,
+          filesByField.featuredImage[0].buffer,
           "blogs"
         );
         blog.featuredImage = uploadedImage.url;
@@ -337,8 +361,8 @@ export const updateBlog = async (req, res) => {
     }
 
     // Handle new image uploads
-    if (req.files && req.files.images) {
-      const imageFiles = req.files.images;
+    if (filesByField.images) {
+      const imageFiles = filesByField.images;
 
       try {
         const uploadedImages = await uploadMultipleImages(

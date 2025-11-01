@@ -5,7 +5,7 @@ export default function Hero() {
       style={{ backgroundColor: "#4B0F0F" }}
       
     >
-      <img src="/image2.png" alt="Background" className="absolute inset-0 z-0 w-full h-full object-cover" />
+      <img src="/3.png" alt="Background" className="absolute inset-0 z-0 w-full h-full object-cover" />
       <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
         <img
           src="/ani2.png"
