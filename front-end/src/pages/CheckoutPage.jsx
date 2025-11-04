@@ -3,7 +3,40 @@ import { useNavigate } from "react-router-dom";
 import { getCart, createOrder } from "../service/api";
 import useAuthStore from "../store/authStore";
 
-const PROVINCE_API_URL = "https://provinces.open-api.vn/api/";
+const PROVINCE_API_URL = "http://provinces.open-api.vn/api/";
+
+// Helper: fetch JSON with HTTP fallback and redirect handling
+const safeFetchJson = async (url) => {
+  try {
+    const res = await fetch(url, { redirect: "follow" });
+    if (!res.ok) {
+      // If 302 or other redirect, try HTTP version
+      if (res.status === 302 || res.status >= 300) {
+        if (url.startsWith("https://")) {
+          const httpUrl = url.replace("https://", "http://");
+          const res2 = await fetch(httpUrl, { redirect: "follow" });
+          if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
+          return await res2.json();
+        }
+      }
+      throw new Error(`HTTP ${res.status}`);
+    }
+    return await res.json();
+  } catch (err) {
+    // Retry with http if current url is https and page context allows it
+    if (url.startsWith("https://")) {
+      const httpUrl = url.replace("https://", "http://");
+      try {
+        const res = await fetch(httpUrl, { redirect: "follow" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      } catch (err2) {
+        throw err2;
+      }
+    }
+    throw err;
+  }
+};
 
 export default function CheckoutPage() {
   const [cart, setCart] = useState(null);
@@ -52,11 +85,12 @@ export default function CheckoutPage() {
 
   // --- Fetch Provinces ---
   useEffect(() => {
+
     const fetchProvinces = async () => {
       try {
-        const response = await fetch(`${PROVINCE_API_URL}?depth=1`);
-        const data = await response.json();
-        setProvinces(data || []);
+        // Use explicit provinces endpoint to avoid redirects/incompatibilities
+        const data = await safeFetchJson(`${PROVINCE_API_URL}p/`);
+        setProvinces(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to fetch provinces:", err);
         setError("Không thể tải danh sách Tỉnh/Thành phố.");
@@ -74,10 +108,9 @@ export default function CheckoutPage() {
     }
     const fetchDistricts = async () => {
       try {
-        const response = await fetch(
+        const data = await safeFetchJson(
           `${PROVINCE_API_URL}p/${selectedProvince}?depth=2`
         );
-        const data = await response.json();
         setDistricts(data.districts || []);
       } catch (err) {
         console.error("Failed to fetch districts:", err);
@@ -95,10 +128,9 @@ export default function CheckoutPage() {
     }
     const fetchWards = async () => {
       try {
-        const response = await fetch(
+        const data = await safeFetchJson(
           `${PROVINCE_API_URL}d/${selectedDistrict}?depth=2`
         );
-        const data = await response.json();
         setWards(data.wards || []);
       } catch (err) {
         console.error("Failed to fetch wards:", err);

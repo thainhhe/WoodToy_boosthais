@@ -141,8 +141,8 @@ export const getPopularStoryTags = async (limit = 20) => {
 import axios from "axios";
 
 // Use environment variable or fallback to localhost for development
-// const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const API_URL =  "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+// const API_URL =  "http://localhost:5000/api";
 // ========== AUTH ========== //
 export const login = async (email, password) =>
   axios.post(`${API_URL}/auth/login`, { email, password });
