@@ -1,4 +1,6 @@
 import express from "express";
+import http from "http";
+import https from "https";
 import cors from "cors";
 import dotenv from "dotenv";
 import swaggerUi from "swagger-ui-express";
@@ -77,6 +79,150 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/stories", storyRoutes);
 
+// Proxy for Vietnam location API (open.oapi.vn) to avoid client-side SSL/mixed-content issues
+app.get("/api/vngeo/*", (req, res, next) => {
+  try {
+    const downstreamPath = req.params[0] || "";
+    const search = req.url.includes("?") ? req.url.slice(req.url.indexOf("?")) : "";
+    // open.oapi.vn API uses paths like /location/provinces, /location/districts, /location/wards
+    // Remove any /api/ prefix if accidentally included
+    let cleanPath = downstreamPath.replace(/^api\//, "");
+    // Ensure path starts with /location/ and doesn't have double slashes
+    if (!cleanPath.startsWith("location/")) {
+      cleanPath = `location/${cleanPath}`;
+    }
+    cleanPath = cleanPath.replace(/\/+/g, "/"); // Remove double slashes
+    let path = `/${cleanPath}${search}`;
+    let redirectCount = 0;
+    const maxRedirects = 5;
+
+    let currentHost = "open.oapi.vn";
+    const useHttps = true; // New API uses HTTPS
+    
+    console.log(`[VNGeo Proxy] Request: ${req.url} -> ${path}`);
+    
+    const makeRequest = (targetPath, useHttps = true, targetHost = currentHost) => {
+    console.log(`[VNGeo Proxy] Making request to: https://${targetHost}${targetPath}`);
+    const options = {
+      host: targetHost,
+      port: useHttps ? 443 : 80,
+      path: targetPath,
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "WoodToyServer/1.0",
+      },
+      ...(useHttps && { rejectUnauthorized: false }), // Ignore SSL cert errors for HTTPS
+    };
+
+    const requestModule = useHttps ? https : http;
+    const proxyReq = requestModule.request(options, (proxyRes) => {
+      // Collect response data to validate JSON
+      let responseData = "";
+      
+      proxyRes.on("data", (chunk) => {
+        responseData += chunk;
+      });
+
+      proxyRes.on("end", () => {
+        // Handle redirects (301, 302, 303, 307, 308)
+        if (
+          (proxyRes.statusCode >= 300 && proxyRes.statusCode < 400) &&
+          proxyRes.headers.location &&
+          redirectCount < maxRedirects
+        ) {
+          redirectCount++;
+          const location = proxyRes.headers.location;
+          let newPath = targetPath;
+          let newUseHttps = useHttps;
+          let newHost = targetHost;
+          
+          console.log(`[VNGeo Proxy] Redirect ${proxyRes.statusCode} from ${targetPath} to ${location}`);
+          
+          // Handle relative and absolute URLs
+          if (location.startsWith("http://") || location.startsWith("https://")) {
+            try {
+              const url = new URL(location);
+              newHost = url.hostname;
+              newPath = url.pathname + url.search;
+              newUseHttps = url.protocol === "https:";
+            } catch (urlErr) {
+              console.error(`[VNGeo Proxy] Error parsing redirect URL: ${location}`, urlErr);
+              if (!res.headersSent) {
+                res.status(500).json({ error: "Invalid redirect URL", message: urlErr.message });
+              }
+              return;
+            }
+          } else {
+            // Relative redirect
+            if (targetPath.includes("/")) {
+              const basePath = targetPath.substring(0, targetPath.lastIndexOf("/"));
+              newPath = location.startsWith("/") ? location : `${basePath}/${location}`;
+            } else {
+              newPath = location.startsWith("/") ? location : `/${location}`;
+            }
+          }
+          makeRequest(newPath, newUseHttps, newHost);
+          return;
+        }
+
+        // Validate response is JSON
+        const contentType = proxyRes.headers["content-type"] || "";
+        if (responseData.trim().startsWith("<!DOCTYPE") || responseData.trim().startsWith("<html")) {
+          console.error(`/api/vngeo proxy: Received HTML instead of JSON for path: ${targetPath}`);
+          if (!res.headersSent) {
+            res.status(500).json({ 
+              error: "Invalid response format", 
+              message: "API returned HTML instead of JSON",
+              path: targetPath
+            });
+          }
+          return;
+        }
+
+        // Try to parse JSON to validate
+        try {
+          JSON.parse(responseData);
+        } catch (parseErr) {
+          console.error(`/api/vngeo proxy: Invalid JSON response for path: ${targetPath}`, responseData.substring(0, 200));
+          if (!res.headersSent) {
+            res.status(500).json({ 
+              error: "Invalid JSON response", 
+              message: "Response is not valid JSON",
+              path: targetPath
+            });
+          }
+          return;
+        }
+
+        // Send valid JSON response
+        if (!res.headersSent) {
+          res.status(proxyRes.statusCode || 200);
+          res.set("content-type", "application/json");
+          res.set("Access-Control-Allow-Origin", "*");
+          res.send(responseData);
+        }
+      });
+    });
+
+    proxyReq.on("error", (err) => {
+      console.error("/api/vngeo proxy error:", err?.message || err);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Proxy request failed", message: err.message });
+      }
+    });
+
+    proxyReq.end();
+  };
+
+  makeRequest(path, true);
+  } catch (err) {
+    console.error("/api/vngeo route error:", err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Proxy route error", message: err.message });
+    }
+  }
+});
 app.get("/api/health", (req, res) => {
   res.json({ 
     status: "Backend is running and connected to Atlas!",

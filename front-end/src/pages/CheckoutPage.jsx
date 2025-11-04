@@ -3,39 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { getCart, createOrder } from "../service/api";
 import useAuthStore from "../store/authStore";
 
-const PROVINCE_API_URL = "http://provinces.open-api.vn/api/";
+// Use backend proxy to avoid external SSL/mixed-content issues in production
+const PROVINCE_API_URL = "/api/vngeo/";
 
-// Helper: fetch JSON with HTTP fallback and redirect handling
+// Helper: fetch JSON through backend proxy (handles redirects and SSL issues)
 const safeFetchJson = async (url) => {
-  try {
-    const res = await fetch(url, { redirect: "follow" });
-    if (!res.ok) {
-      // If 302 or other redirect, try HTTP version
-      if (res.status === 302 || res.status >= 300) {
-        if (url.startsWith("https://")) {
-          const httpUrl = url.replace("https://", "http://");
-          const res2 = await fetch(httpUrl, { redirect: "follow" });
-          if (!res2.ok) throw new Error(`HTTP ${res2.status}`);
-          return await res2.json();
-        }
-      }
-      throw new Error(`HTTP ${res.status}`);
-    }
-    return await res.json();
-  } catch (err) {
-    // Retry with http if current url is https and page context allows it
-    if (url.startsWith("https://")) {
-      const httpUrl = url.replace("https://", "http://");
-      try {
-        const res = await fetch(httpUrl, { redirect: "follow" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
-      } catch (err2) {
-        throw err2;
-      }
-    }
-    throw err;
+  const res = await fetch(url, { redirect: "follow" });
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
   }
+  return await res.json();
 };
 
 export default function CheckoutPage() {
@@ -85,12 +62,13 @@ export default function CheckoutPage() {
 
   // --- Fetch Provinces ---
   useEffect(() => {
-
     const fetchProvinces = async () => {
       try {
-        // Use explicit provinces endpoint to avoid redirects/incompatibilities
-        const data = await safeFetchJson(`${PROVINCE_API_URL}p/`);
-        setProvinces(Array.isArray(data) ? data : []);
+        // New API: open.oapi.vn/location/provinces
+        const data = await safeFetchJson(`${PROVINCE_API_URL}location/provinces?page=0&size=100`);
+        // Handle paginated response - could be { data: [...], total: ... } or just array
+        const provincesList = Array.isArray(data) ? data : (data.data || data.content || []);
+        setProvinces(provincesList);
       } catch (err) {
         console.error("Failed to fetch provinces:", err);
         setError("Không thể tải danh sách Tỉnh/Thành phố.");
@@ -108,10 +86,13 @@ export default function CheckoutPage() {
     }
     const fetchDistricts = async () => {
       try {
+        // New API: open.oapi.vn/location/districts/{provinceId}?page=0&size=100
         const data = await safeFetchJson(
-          `${PROVINCE_API_URL}p/${selectedProvince}?depth=2`
+          `${PROVINCE_API_URL}location/districts/${selectedProvince}?page=0&size=100`
         );
-        setDistricts(data.districts || []);
+        // Handle paginated response
+        const districtsList = Array.isArray(data) ? data : (data.data || data.content || []);
+        setDistricts(districtsList);
       } catch (err) {
         console.error("Failed to fetch districts:", err);
       }
@@ -128,10 +109,13 @@ export default function CheckoutPage() {
     }
     const fetchWards = async () => {
       try {
+        // New API: open.oapi.vn/location/wards/{districtId}?page=0&size=100
         const data = await safeFetchJson(
-          `${PROVINCE_API_URL}d/${selectedDistrict}?depth=2`
+          `${PROVINCE_API_URL}location/wards/${selectedDistrict}?page=0&size=100`
         );
-        setWards(data.wards || []);
+        // Handle paginated response
+        const wardsList = Array.isArray(data) ? data : (data.data || data.content || []);
+        setWards(wardsList);
       } catch (err) {
         console.error("Failed to fetch wards:", err);
       }
@@ -152,13 +136,19 @@ export default function CheckoutPage() {
     setIsPlacingOrder(true);
 
     // Lấy tên tỉnh, huyện, xã từ state để gửi đi
+    // Support both code and id fields (new API might use id)
     const provinceName = provinces.find(
-      (p) => p.code == selectedProvince
-    )?.name;
+      (p) => (p.code || p.id) == selectedProvince
+    )?.name || provinces.find(
+      (p) => (p.code || p.id) == selectedProvince
+    )?.provinceName;
     const districtName = districts.find(
-      (d) => d.code == selectedDistrict
-    )?.name;
-    const wardName = wards.find((w) => w.code == selectedWard)?.name;
+      (d) => (d.code || d.id) == selectedDistrict
+    )?.name || districts.find(
+      (d) => (d.code || d.id) == selectedDistrict
+    )?.districtName;
+    const wardName = wards.find((w) => (w.code || w.id) == selectedWard)?.name || 
+                     wards.find((w) => (w.code || w.id) == selectedWard)?.wardName;
 
     if (
       !selectedProvince ||
@@ -294,8 +284,8 @@ export default function CheckoutPage() {
                 >
                   <option value="">Chọn Tỉnh/Thành</option>
                   {provinces.map((p) => (
-                    <option key={p.code} value={p.code}>
-                      {p.name}
+                    <option key={p.code || p.id} value={p.code || p.id}>
+                      {p.name || p.provinceName}
                     </option>
                   ))}
                 </select>
@@ -320,8 +310,8 @@ export default function CheckoutPage() {
                 >
                   <option value="">Chọn Quận/Huyện</option>
                   {districts.map((d) => (
-                    <option key={d.code} value={d.code}>
-                      {d.name}
+                    <option key={d.code || d.id} value={d.code || d.id}>
+                      {d.name || d.districtName}
                     </option>
                   ))}
                 </select>
@@ -343,8 +333,8 @@ export default function CheckoutPage() {
                 >
                   <option value="">Chọn Phường/Xã</option>
                   {wards.map((w) => (
-                    <option key={w.code} value={w.code}>
-                      {w.name}
+                    <option key={w.code || w.id} value={w.code || w.id}>
+                      {w.name || w.wardName}
                     </option>
                   ))}
                 </select>
