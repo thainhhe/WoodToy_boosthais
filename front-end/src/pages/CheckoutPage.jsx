@@ -3,12 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { getCart, createOrder } from "../service/api";
 import useAuthStore from "../store/authStore";
 
-// Use backend proxy to avoid external SSL/mixed-content issues in production
-const PROVINCE_API_URL = "/api/vngeo/";
+// Use open.oapi.vn directly - no proxy needed if CORS is enabled
+const PROVINCE_API_URL = "https://open.oapi.vn/";
 
-// Helper: fetch JSON through backend proxy (handles redirects and SSL issues)
+// Helper: fetch JSON directly from API
 const safeFetchJson = async (url) => {
-  const res = await fetch(url, { redirect: "follow" });
+  const res = await fetch(url, { 
+    redirect: "follow",
+    headers: {
+      'Accept': 'application/json',
+    }
+  });
   if (!res.ok) {
     throw new Error(`HTTP ${res.status}`);
   }
@@ -64,7 +69,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     const fetchProvinces = async () => {
       try {
-        // New API: open.oapi.vn/location/provinces
+        // API: open.oapi.vn/location/provinces?page=0&size=100
         const data = await safeFetchJson(`${PROVINCE_API_URL}location/provinces?page=0&size=100`);
         // Handle paginated response - could be { data: [...], total: ... } or just array
         const provincesList = Array.isArray(data) ? data : (data.data || data.content || []);
@@ -86,12 +91,13 @@ export default function CheckoutPage() {
     }
     const fetchDistricts = async () => {
       try {
-        // New API: open.oapi.vn/location/districts/{provinceId}?page=0&size=100
+        // API: open.oapi.vn/location/districts/{provinceId}?page=0&size=100
         const data = await safeFetchJson(
           `${PROVINCE_API_URL}location/districts/${selectedProvince}?page=0&size=100`
         );
         // Handle paginated response
         const districtsList = Array.isArray(data) ? data : (data.data || data.content || []);
+        console.log("Districts response sample:", districtsList[0]); // Debug: check structure
         setDistricts(districtsList);
       } catch (err) {
         console.error("Failed to fetch districts:", err);
@@ -109,19 +115,24 @@ export default function CheckoutPage() {
     }
     const fetchWards = async () => {
       try {
-        // New API: open.oapi.vn/location/wards/{districtId}?page=0&size=100
+        // API: open.oapi.vn/location/wards/{districtId}?page=0&size=100
+        const district = districts.find(d => (d.code || d.id) == selectedDistrict);
+        const districtId = district?.id || district?.districtId || selectedDistrict;
+        
         const data = await safeFetchJson(
-          `${PROVINCE_API_URL}location/wards/${selectedDistrict}?page=0&size=100`
+          `${PROVINCE_API_URL}location/wards/${districtId}?page=0&size=100`
         );
         // Handle paginated response
         const wardsList = Array.isArray(data) ? data : (data.data || data.content || []);
         setWards(wardsList);
       } catch (err) {
         console.error("Failed to fetch wards:", err);
+        // Set empty array on error instead of leaving it undefined
+        setWards([]);
       }
     };
     fetchWards();
-  }, [selectedDistrict]);
+  }, [selectedDistrict, districts]);
 
   // --- Handle Form Input Change ---
   const handleInputChange = (e) => {

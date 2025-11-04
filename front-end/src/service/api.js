@@ -1,3 +1,28 @@
+import axios from "axios";
+import useAuthStore from "../store/authStore";
+
+// Use environment variable or fallback to localhost for development
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+// const API_URL =  "http://localhost:5000/api";
+
+// Axios interceptor để handle 401 errors globally
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token hết hạn hoặc không hợp lệ - logout user
+      const logout = useAuthStore.getState().logout;
+      logout();
+      
+      // Redirect to login page if not already there
+      if (window.location.pathname !== "/login" && window.location.pathname !== "/register") {
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 // ========== USER PROFILE ========== //
 export const getUserProfile = async () => {
   const token = localStorage.getItem("accessToken");
@@ -138,12 +163,6 @@ export const deleteStory = async (id) => {
 export const getPopularStoryTags = async (limit = 20) => {
   return axios.get(`${API_URL}/stories/tags/popular`, { params: { limit } });
 };
-import axios from "axios";
-
-// Use environment variable or fallback to localhost for development
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-// const API_URL =  "http://localhost:5000/api";
-// ========== AUTH ========== //
 export const login = async (email, password) =>
   axios.post(`${API_URL}/auth/login`, { email, password });
 
@@ -229,7 +248,11 @@ export const getCart = async () => {
     });
     return response.data.data.cart;
   } catch (error) {
-    // Không log lỗi 401 ra console nữa
+    // Nếu là 401, interceptor sẽ xử lý logout và redirect
+    // Nếu là lỗi khác, return null để không crash app
+    if (error.response?.status === 401) {
+      throw error; // Let interceptor handle it
+    }
     return null;
   }
 };

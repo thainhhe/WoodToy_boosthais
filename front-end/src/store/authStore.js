@@ -25,12 +25,22 @@ const useAuthStore = create((set, get) => ({
   },
   // MỚI: Action để lấy số lượng giỏ hàng từ API
   fetchCartCount: async () => {
-    const cart = await getCart();
-    if (cart) {
-      // Tính tổng số lượng sản phẩm (totalItems đã có sẵn trong API response)
-      set({ cartItemCount: cart.totalItems || 0 });
-    } else {
-      set({ cartItemCount: 0 }); // Đặt lại là 0 nếu không lấy được giỏ hàng
+    try {
+      const cart = await getCart();
+      if (cart) {
+        // Tính tổng số lượng sản phẩm (totalItems đã có sẵn trong API response)
+        set({ cartItemCount: cart.totalItems || 0 });
+      } else {
+        // Nếu không có cart (user chưa đăng nhập hoặc cart trống)
+        set({ cartItemCount: 0 });
+      }
+    } catch (error) {
+      // Nếu là 401, interceptor đã xử lý logout và redirect
+      // Chỉ set cartItemCount = 0 nếu không phải 401
+      if (error.response?.status !== 401) {
+        set({ cartItemCount: 0 });
+      }
+      // Nếu là 401, không làm gì cả - interceptor đã xử lý
     }
   },
   // MỚI: Action để tăng số lượng (dùng sau khi add to cart thành công)
