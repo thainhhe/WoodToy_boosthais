@@ -50,8 +50,8 @@ import { uploadProductMedia, uploadImages, handleMulterError } from "../middlewa
  *       500:
  *         description: Server Error
  *   post:
- *     summary: Create a new product with images, video, and story blocks
- *     description: Add a new product with multiple images (max 10), one video, and rich story content (text + images interleaved)
+ *     summary: Create a new product with images, videos, and story blocks
+ *     description: Add a new product with multiple images (max 10), multiple videos (max 10), and rich story content (text + images interleaved)
  *     tags: [Products]
  *     requestBody:
  *       required: true
@@ -90,10 +90,16 @@ import { uploadProductMedia, uploadImages, handleMulterError } from "../middlewa
  *                   type: string
  *                   format: binary
  *                 description: "Product images (max 10, each max 10MB)"
+ *               videos:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: "Product videos (max 10, each max 100MB)"
  *               video:
  *                 type: string
  *                 format: binary
- *                 description: "Product video (max 100MB)"
+ *                 description: "Legacy: Single product video (max 100MB) - use 'videos' array instead"
  *               storyBlocks:
  *                 type: string
  *                 description: "JSON array of story blocks (max 50 blocks). Example: [{type:'text',order:0,content:'...'},{type:'image',order:1,caption:'...',alt:'...'}]"
@@ -176,18 +182,28 @@ router.route("/")
  *                   type: string
  *                   format: binary
  *                 description: "New images to add"
+ *               videos:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: "New videos to add (max 10)"
  *               video:
  *                 type: string
  *                 format: binary
- *                 description: "New video (replaces existing)"
+ *                 description: "Legacy: Single video (adds to videos array) - use 'videos' array instead"
  *               deletedImages:
  *                 type: string
- *                 description: "JSON array of publicIds to delete"
+ *                 description: "JSON array of image publicIds to delete"
  *                 example: '["woodtoy/products/abc123"]'
+ *               deletedVideos:
+ *                 type: string
+ *                 description: "JSON array of video publicIds to delete"
+ *                 example: '["woodtoy/products/video123"]'
  *               deleteVideo:
  *                 type: string
  *                 enum: ["true", "false"]
- *                 description: "Set to 'true' to delete video"
+ *                 description: "Legacy: Set to 'true' to delete legacy single video field"
  *               storyBlocks:
  *                 type: string
  *                 description: "Updated JSON array of story blocks (replaces existing). Example: [{type:'text',order:0,content:'...'},{type:'image',order:1,image:{...},caption:'...',alt:'...'}]"

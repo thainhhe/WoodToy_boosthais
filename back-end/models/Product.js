@@ -68,7 +68,17 @@ const productSchema = new mongoose.Schema({
       message: "Maximum 10 images allowed per product",
     },
   },
-  // Single video support
+  // Multiple videos support
+  videos: {
+    type: [videoSchema],
+    validate: {
+      validator: function(videos) {
+        return videos.length <= 10; // Maximum 10 videos
+      },
+      message: "Maximum 10 videos allowed per product",
+    },
+  },
+  // Deprecated: Use videos array instead (backward compatible)
   video: {
     type: videoSchema,
     default: null,

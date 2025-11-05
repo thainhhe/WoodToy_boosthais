@@ -243,6 +243,13 @@
   app.get("/", (req, res) => {
     res.redirect("/api-docs");
   });
+// Mount API routes
+app.use("/api/products", productRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/blogs", blogRoutes);
+app.use("/api/stories", storyRoutes);
 
   // Error handling middleware
   app.use((err, req, res, next) => {

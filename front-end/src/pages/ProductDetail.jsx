@@ -27,13 +27,21 @@ export default function ProductDetail() {
         const fetchedProduct = res.data.data.product;
         setProduct(fetchedProduct);
 
-        // Ưu tiên hiển thị ảnh primary, sau đó đến video, rồi đến ảnh đầu tiên
+        // Debug: Log product data to check videos
+        console.log("Product data:", fetchedProduct);
+        console.log("Product videos:", fetchedProduct.videos);
+        console.log("Product video (legacy):", fetchedProduct.video);
+
+        // Ưu tiên hiển thị ảnh primary, sau đó đến video đầu tiên, rồi đến ảnh đầu tiên
         const primaryImage = fetchedProduct.images?.find((m) => m.isPrimary);
         if (primaryImage) {
           setSelectedMedia({ ...primaryImage, type: "image" });
+        } else if (fetchedProduct.videos && fetchedProduct.videos.length > 0) {
+          setSelectedMedia({ ...fetchedProduct.videos[0], type: "video" });
         } else if (fetchedProduct.video) {
+          // Legacy single video support
           setSelectedMedia({ ...fetchedProduct.video, type: "video" });
-        } else if (fetchedProduct.images?.length > 0) {
+        } else if (fetchedProduct.images && fetchedProduct.images.length > 0) {
           setSelectedMedia({ ...fetchedProduct.images[0], type: "image" });
         }
       } catch (err) {
@@ -125,10 +133,28 @@ export default function ProductDetail() {
     );
 
   // Gộp tất cả media vào một mảng để render thumbnail
-  const allMedia = [
-    ...(product.images?.map((img) => ({ ...img, type: "image" })) || []),
-    ...(product.video ? [{ ...product.video, type: "video" }] : []),
-  ];
+  const images = product.images || [];
+  const videos = product.videos || [];
+  const legacyVideo = product.video;
+  
+  // Map images
+  const imageMedia = images.map((img) => ({ ...img, type: "image" }));
+  
+  // Map videos from videos array
+  const videoMedia = videos.map((video) => ({ ...video, type: "video" }));
+  
+  // Add legacy single video if it exists and is not already in videos array
+  const legacyVideoMedia = legacyVideo && !videos.some(v => v.publicId === legacyVideo.publicId)
+    ? [{ ...legacyVideo, type: "video" }]
+    : [];
+  
+  const allMedia = [...imageMedia, ...videoMedia, ...legacyVideoMedia];
+  
+  // Debug log
+  console.log("All media count:", allMedia.length);
+  console.log("Images count:", imageMedia.length);
+  console.log("Videos count:", videoMedia.length);
+  console.log("Legacy video:", legacyVideoMedia.length);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 py-8">
@@ -237,9 +263,9 @@ export default function ProductDetail() {
                   <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
                     <span>📝</span> Mô tả sản phẩm
                   </h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    {product.description}
-                  </p>
+                  <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                    {product.description || "Chưa có mô tả cho sản phẩm này."}
+                  </div>
                 </div>
               </div>
 

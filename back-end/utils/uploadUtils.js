@@ -112,6 +112,20 @@ export const uploadMultipleImages = async (fileBuffers, folder = "products") => 
 };
 
 /**
+ * Upload multiple videos
+ * @param {Array<Buffer>} fileBuffers - Array of video file buffers
+ * @param {String} folder - Cloudinary folder name
+ * @returns {Promise<Array>} - Array of upload results
+ */
+export const uploadMultipleVideos = async (fileBuffers, folder = "products") => {
+  const uploadPromises = fileBuffers.map((buffer) => 
+    uploadVideo(buffer, folder)
+  );
+  
+  return Promise.all(uploadPromises);
+};
+
+/**
  * Delete image/video from Cloudinary
  * @param {String} publicId - Cloudinary public_id
  * @param {String} resourceType - 'image' or 'video'
@@ -156,6 +170,19 @@ export const deleteMultipleImages = async (publicIds) => {
  */
 export const deleteVideo = async (publicId) => {
   return deleteMedia(publicId, "video");
+};
+
+/**
+ * Delete multiple videos
+ * @param {Array<String>} publicIds - Array of video public_ids
+ * @returns {Promise<Array>} - Array of deletion results
+ */
+export const deleteMultipleVideos = async (publicIds) => {
+  const deletePromises = publicIds.map((publicId) => 
+    deleteMedia(publicId, "video")
+  );
+  
+  return Promise.all(deletePromises);
 };
 
 /**

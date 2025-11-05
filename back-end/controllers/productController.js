@@ -11,9 +11,11 @@ import {
   uploadImage,
   uploadVideo,
   uploadMultipleImages,
+  uploadMultipleVideos,
   deleteMedia,
   deleteMultipleImages,
   deleteVideo,
+  deleteMultipleVideos,
   extractPublicId,
 } from "../utils/uploadUtils.js";
 
@@ -86,7 +88,7 @@ const createProduct = async (req, res) => {
       category,
       stock,
       images: [],
-      video: null,
+      videos: [],
     };
 
     // Organize uploaded files by field name (since we use .any() in middleware)
@@ -121,19 +123,44 @@ const createProduct = async (req, res) => {
       }
     }
 
-    // Upload video if provided
+    // Upload videos if provided
+    if (filesByField.videos && filesByField.videos.length > 0) {
+      const videoFiles = filesByField.videos;
+      
+      try {
+        const uploadedVideos = await uploadMultipleVideos(
+          videoFiles.map(file => file.buffer),
+          "products"
+        );
+        
+        productData.videos = uploadedVideos.map((video) => ({
+          url: video.url,
+          publicId: video.publicId,
+          thumbnail: video.thumbnail,
+          duration: video.duration,
+        }));
+      } catch (uploadError) {
+        // Clean up uploaded images if video upload fails
+        if (productData.images.length > 0) {
+          await deleteMultipleImages(productData.images.map(img => img.publicId));
+        }
+        return sendValidationError(res, [`Failed to upload videos: ${uploadError.message}`]);
+      }
+    }
+    
+    // Support legacy 'video' field name for backward compatibility
     if (filesByField.video && filesByField.video[0]) {
       const videoFile = filesByField.video[0];
       
       try {
         const uploadedVideo = await uploadVideo(videoFile.buffer, "products");
         
-        productData.video = {
+        productData.videos = [{
           url: uploadedVideo.url,
           publicId: uploadedVideo.publicId,
           thumbnail: uploadedVideo.thumbnail,
           duration: uploadedVideo.duration,
-        };
+        }];
       } catch (uploadError) {
         // Clean up uploaded images if video upload fails
         if (productData.images.length > 0) {
@@ -157,6 +184,12 @@ const createProduct = async (req, res) => {
           await deleteMultipleImages(uploadedImages.map(f => f.cloudinary_id));
         }
       }
+      if (req.files.videos) {
+        const uploadedVideos = req.files.videos.filter(f => f.cloudinary_id);
+        if (uploadedVideos.length > 0) {
+          await deleteMultipleVideos(uploadedVideos.map(f => f.cloudinary_id));
+        }
+      }
       if (req.files.video && req.files.video[0]?.cloudinary_id) {
         await deleteVideo(req.files.video[0].cloudinary_id);
       }
@@ -174,7 +207,7 @@ const createProduct = async (req, res) => {
 // @access  Public (hoặc Private nếu cần authentication)
 const updateProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock, deletedImages, deleteVideo } = req.body;
+    const { name, description, price, category, stock, deletedImages, deletedVideos, deleteVideo } = req.body;
 
     const product = await Product.findById(req.params.id);
 
@@ -248,30 +281,89 @@ const updateProduct = async (req, res) => {
       }
     }
 
-    // Handle video deletion
-    if (deleteVideo === "true" && product.video) {
-      await deleteVideo(product.video.publicId);
-      product.video = null;
-    }
-
-    // Handle new video upload
-    if (filesByField.video && filesByField.video[0]) {
-      // Delete old video if exists
-      if (product.video) {
-        await deleteVideo(product.video.publicId);
+    // Handle video deletion (specific videos by publicId)
+    if (deletedVideos) {
+      const videosToDelete = JSON.parse(deletedVideos);
+      
+      // Delete from Cloudinary
+      if (videosToDelete.length > 0) {
+        await deleteMultipleVideos(videosToDelete);
       }
       
+      // Remove from product
+      if (product.videos) {
+        product.videos = product.videos.filter(
+          video => !videosToDelete.includes(video.publicId)
+        );
+      }
+    }
+
+    // Handle legacy single video deletion
+    if (deleteVideo === "true") {
+      if (product.video) {
+        const videoPublicId = product.video.publicId;
+        await deleteVideo(videoPublicId);
+        product.video = null;
+        
+        // Also remove from videos array if it exists there
+        if (product.videos && product.videos.length > 0) {
+          product.videos = product.videos.filter(v => v.publicId !== videoPublicId);
+        }
+      }
+    }
+
+    // Handle new video uploads (multiple videos)
+    if (filesByField.videos && filesByField.videos.length > 0) {
+      const videoFiles = filesByField.videos;
+      
+      try {
+        const uploadedVideos = await uploadMultipleVideos(
+          videoFiles.map(file => file.buffer),
+          "products"
+        );
+        
+        const newVideos = uploadedVideos.map((video) => ({
+          url: video.url,
+          publicId: video.publicId,
+          thumbnail: video.thumbnail,
+          duration: video.duration,
+        }));
+        
+        // Initialize videos array if it doesn't exist
+        if (!product.videos) {
+          product.videos = [];
+        }
+        
+        product.videos.push(...newVideos);
+      } catch (uploadError) {
+        return sendValidationError(res, [`Failed to upload videos: ${uploadError.message}`]);
+      }
+    }
+
+    // Support legacy 'video' field name for backward compatibility
+    if (filesByField.video && filesByField.video[0]) {
       const videoFile = filesByField.video[0];
       
       try {
         const uploadedVideo = await uploadVideo(videoFile.buffer, "products");
         
-        product.video = {
+        const newVideo = {
           url: uploadedVideo.url,
           publicId: uploadedVideo.publicId,
           thumbnail: uploadedVideo.thumbnail,
           duration: uploadedVideo.duration,
         };
+        
+        // Initialize videos array if it doesn't exist
+        if (!product.videos) {
+          product.videos = [];
+        }
+        
+        // Add to videos array
+        product.videos.push(newVideo);
+        
+        // Also set legacy video field for backward compatibility
+        product.video = newVideo;
       } catch (uploadError) {
         return sendValidationError(res, [`Failed to upload video: ${uploadError.message}`]);
       }
@@ -303,7 +395,13 @@ const deleteProduct = async (req, res) => {
       await deleteMultipleImages(publicIds);
     }
 
-    // Delete video from Cloudinary
+    // Delete videos from Cloudinary
+    if (product.videos && product.videos.length > 0) {
+      const publicIds = product.videos.map(video => video.publicId);
+      await deleteMultipleVideos(publicIds);
+    }
+    
+    // Delete legacy single video from Cloudinary
     if (product.video) {
       await deleteVideo(product.video.publicId);
     }
