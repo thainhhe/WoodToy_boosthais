@@ -74,7 +74,10 @@ export default function Team() {
   const visible = getVisible();
 
   return (
-    <section id="team" className="py-16 bg-brand-light">
+    <section
+      id="team"
+      className="py-16 bg-gradient-to-tr from-amber-50 via-white to-brand-light"
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-4xl font-bold text-brand-primary mb-8">
           Phản hồi khách hàng
@@ -100,10 +103,10 @@ export default function Team() {
               return (
                 <div
                   key={fb.name}
-                  className={`transition-all duration-700 ease-in-out bg-white rounded-2xl p-6 shadow-lg max-w-md ${
+                  className={`transition-all duration-700 ease-in-out rounded-2xl p-6 shadow-lg max-w-md ${
                     isCenter
-                      ? "scale-100 opacity-100 z-10"
-                      : "scale-90 opacity-60 z-0"
+                      ? "scale-100 opacity-100 z-10 bg-amber-50 ring-1 ring-amber-100"
+                      : "scale-90 opacity-80 z-0 bg-white"
                   }`}
                   style={{ minWidth: isCenter ? 420 : 320 }}
                 >

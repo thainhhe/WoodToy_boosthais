@@ -69,11 +69,11 @@ export default function Products() {
                 className="bg-white rounded-xl shadow-md overflow-hidden border border-amber-100 cursor-pointer hover:shadow-xl transition"
                 onClick={() => navigate(`/products/${product._id}`)}
               >
-                <div className="h-48 bg-amber-50 flex items-center justify-center overflow-hidden">
+                <div className="h-56 md:h-64 lg:h-72 bg-amber-50 flex items-center justify-center overflow-hidden">
                   <img
                     src={primaryImage.url}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 </div>
                 <div className="p-4">

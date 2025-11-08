@@ -26,7 +26,7 @@ const featuresData = [
 
 export default function Features() {
   return (
-    <section className="py-24 bg-white">
+    <section className="py-24 bg-gradient-to-br from-white via-amber-50 to-amber-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-brand-primary">
@@ -37,9 +37,9 @@ export default function Features() {
           {featuresData.map((feature, index) => (
             <div
               key={index}
-              className="text-center p-8 bg-brand-light rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-2 transition-transform duration-300"
+              className="text-center p-8 bg-white/90 rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-transform duration-300 border border-amber-100"
             >
-              <div className="text-5xl mb-4 flex justify-center items-center h-16">
+              <div className="mx-auto mb-4 w-16 h-16 flex items-center justify-center rounded-full bg-amber-50 text-3xl shadow-inner">
                 {feature.icon}
               </div>
               <h3 className="text-xl font-bold mb-2 text-brand-primary">

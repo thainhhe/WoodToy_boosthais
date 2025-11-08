@@ -23,9 +23,12 @@ const CartIcon = () => (
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const userMenuRef = useRef(null);
+  // Start as "over hero" (transparent) when on the home page to avoid a
+  // brief flash of the solid navbar while the IntersectionObserver initializes.
   const navigate = useNavigate();
   const location = useLocation();
+  const [isOverHero, setIsOverHero] = useState(location.pathname === "/");
+  const userMenuRef = useRef(null);
 
   const menuItems = [
     { name: "Trang chủ", to: "/", hash: "" },
@@ -59,6 +62,36 @@ export default function Navbar() {
       fetchCartCount();
     }
   }, [user, fetchCartCount]);
+
+  // Observe hero section to make navbar transparent when over it
+  useEffect(() => {
+    // If not on home page, navbar should be solid
+    if (location.pathname !== "/") {
+      setIsOverHero(false);
+      return;
+    }
+
+    const heroEl = document.getElementById("hero");
+    if (!heroEl) {
+      // If hero isn't present but we're on the home page, keep the
+      // navbar transparent. Otherwise make it solid.
+      setIsOverHero(location.pathname === "/");
+      return;
+    }
+
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        // When hero is intersecting the viewport (visible) we consider navbar over hero
+        setIsOverHero(entry.isIntersecting);
+      },
+      // A small threshold so the navbar becomes solid shortly after the
+      // hero leaves the viewport.
+      { threshold: 0.05 }
+    );
+
+    obs.observe(heroEl);
+    return () => obs.disconnect();
+  }, [location.pathname]);
 
   // Hàm xử lý smooth scroll đến section
   const scrollToSection = (hash, delay = 100) => {
@@ -125,8 +158,41 @@ export default function Navbar() {
     navigate("/");
   };
 
+  // Use inline styles for backgroundColor/backdropFilter so the transparent
+  // state can't be accidentally overridden by other CSS. Keep a small
+  // transition for smooth change between transparent and solid.
+  // When the navbar is over the hero we copy the hero background image into
+  // the navbar so it appears to contain the hero artwork. When not over the
+  // hero we use the solid brand color.
+  const navStyle =
+    isOverHero && location.pathname === "/"
+      ? {
+          // Put the hero image behind the navbar with a subtle dark overlay
+          // so nav links remain readable.
+          backgroundImage:
+            "linear-gradient(rgba(11,15,12,0.25), rgba(11,15,12,0.25)), url('/3.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundBlendMode: "overlay",
+          // Keep a frosted glass feel so text stands out
+          backdropFilter: "blur(6px)",
+          WebkitBackdropFilter: "blur(6px)",
+          color: "white",
+          boxShadow: "0 6px 30px rgba(0,0,0,0.35)",
+          transition:
+            "background 220ms ease, backdrop-filter 220ms ease, box-shadow 220ms",
+        }
+      : {
+          backgroundColor: "#4B0F0F",
+          backdropFilter: "none",
+          WebkitBackdropFilter: "none",
+          boxShadow: "0 1px 6px rgba(0,0,0,0.15)",
+          transition: "background-color 220ms ease, box-shadow 220ms",
+        };
+
   return (
-    <nav className="bg-[#4B0F0F] sticky top-0 z-50">
+    <nav className={`sticky top-0 z-50`} style={navStyle}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
