@@ -2,13 +2,20 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-      style={{ backgroundColor: "#4B0F0F" }}
+      className="relative flex items-center justify-center overflow-hidden"
+      style={{
+        backgroundColor: "#4B0F0F",
+        marginTop: "-80px",
+        paddingTop: "80px",
+        // Increase height so the background image stretches longer vertically
+        minHeight: "130vh",
+      }}
     >
       <img
         src="/3.png"
         alt="Background"
         className="absolute inset-0 z-0 w-full h-full object-cover"
+        style={{ objectPosition: "50% 28%" }}
       />
       <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
         <img

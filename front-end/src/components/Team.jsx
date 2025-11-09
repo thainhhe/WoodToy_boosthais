@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useRef } from "react";
 
 const feedbacks = [
@@ -67,7 +69,6 @@ export default function Team() {
   const next = () => setCurrent((p) => (p + 1) % total);
 
   const getVisible = () => {
-    // show center + one on each side for nicer carousel feel
     return [(current - 1 + total) % total, current, (current + 1) % total];
   };
 
@@ -76,10 +77,10 @@ export default function Team() {
   return (
     <section
       id="team"
-      className="py-16 bg-gradient-to-tr from-amber-50 via-white to-brand-light"
+      className="py-16 bg-gradient-to-br from-rose-100 via-orange-100 to-amber-100"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-4xl font-bold text-brand-primary mb-8">
+        <h2 className="text-4xl font-bold text-orange-900 mb-8">
           Phản hồi khách hàng
         </h2>
 
@@ -105,26 +106,26 @@ export default function Team() {
                   key={fb.name}
                   className={`transition-all duration-700 ease-in-out rounded-2xl p-6 shadow-lg max-w-md ${
                     isCenter
-                      ? "scale-100 opacity-100 z-10 bg-amber-50 ring-1 ring-amber-100"
+                      ? "scale-100 opacity-100 z-10 bg-gradient-to-br from-orange-50 to-amber-50 ring-2 ring-orange-300"
                       : "scale-90 opacity-80 z-0 bg-white"
                   }`}
                   style={{ minWidth: isCenter ? 420 : 320 }}
                 >
                   <div className="flex items-center gap-4 mb-4">
                     <img
-                      src={fb.avatar}
+                      src={fb.avatar || "/placeholder.svg"}
                       alt={fb.name}
                       className="w-12 h-12 rounded-full object-cover"
                     />
                     <div className="text-left">
-                      <div className="font-bold text-sm text-brand-primary">
+                      <div className="font-bold text-sm text-orange-900">
                         {fb.name}
                       </div>
-                      <div className="text-xs text-gray-500">{fb.role}</div>
+                      <div className="text-xs text-gray-600">{fb.role}</div>
                     </div>
                   </div>
                   <p className="text-gray-700 text-base leading-relaxed">
-                    “{fb.text}”
+                    "{fb.text}"
                   </p>
                 </div>
               );
@@ -145,8 +146,8 @@ export default function Team() {
             <button
               key={idx}
               onClick={() => setCurrent(idx)}
-              className={`w-3 h-3 rounded-full ${
-                idx === current ? "bg-amber-600" : "bg-gray-300"
+              className={`w-3 h-3 rounded-full transition-all ${
+                idx === current ? "bg-orange-600" : "bg-gray-300"
               }`}
               aria-label={`Go to feedback ${idx + 1}`}
             />
