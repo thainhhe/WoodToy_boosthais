@@ -62,7 +62,7 @@ export default function StoryAdminList() {
             <tr>
               <th className="p-2">Tiêu đề</th>
               <th>Trạng thái</th>
-              <th>Danh mục</th>
+              <th>Thứ tự</th>
               <th>Ngày đăng</th>
               <th>Hành động</th>
             </tr>
@@ -76,7 +76,7 @@ export default function StoryAdminList() {
                   </Link>
                 </td>
                 <td>{s.status}</td>
-                <td>{s.category || "-"}</td>
+                <td className="text-center">{s.sortOrder ?? 0}</td>
                 <td>{s.publishedAt ? new Date(s.publishedAt).toLocaleDateString() : "-"}</td>
                 <td>
                   <Link to={`/admin/stories/${s._id}/edit`} className="text-green-600 hover:underline mr-3">

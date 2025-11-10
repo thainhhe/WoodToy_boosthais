@@ -64,7 +64,7 @@ export const getStories = async (req, res) => {
     console.log("[getStories] query:", req.query);
     const [items, total] = await Promise.all([
       Story.find(filter)
-        .sort({ publishedAt: -1, createdAt: -1 })
+        .sort({ sortOrder: 1, publishedAt: -1, createdAt: -1 })
         .skip((numericPage - 1) * numericLimit)
         .limit(numericLimit),
       Story.countDocuments(filter),
@@ -118,6 +118,8 @@ export const createStory = async (req, res) => {
       description,
       status = "draft",
       tags = "",
+      sortOrder,
+      youtubeUrl,
     } = req.body;
 
     if (!title) return sendError(res, "Title is required", 400);
@@ -188,6 +190,8 @@ export const createStory = async (req, res) => {
       blocks: processedBlocks,
       author: req.user?._id,
       featuredImage: featuredImageUrl,
+      sortOrder: sortOrder !== undefined ? parseInt(sortOrder, 10) : 0,
+      youtubeUrl: youtubeUrl || undefined,
     });
 
     console.log("[createStory] created story id:", story._id);
@@ -222,12 +226,16 @@ export const updateStory = async (req, res) => {
       status,
       tags,
       removeFeaturedImage,
+      sortOrder,
+      youtubeUrl,
     } = req.body;
 
     // Update simple fields
     if (title !== undefined) story.title = title;
     if (description !== undefined) story.description = description;
     if (status !== undefined) story.status = status;
+    if (sortOrder !== undefined) story.sortOrder = parseInt(sortOrder, 10);
+    if (youtubeUrl !== undefined) story.youtubeUrl = youtubeUrl || undefined;
     if (tags !== undefined) {
       story.tags = String(tags)
         .split(",")

@@ -88,6 +88,16 @@ const storySchema = new mongoose.Schema({
     min: [0, "Views cannot be negative"],
   },
   publishedAt: Date,
+  sortOrder: {
+    type: Number,
+    default: 0,
+    index: true,
+  },
+  youtubeUrl: {
+    type: String,
+    trim: true,
+    maxlength: [500, "YouTube URL cannot exceed 500 characters"],
+  },
 }, {
   timestamps: true,
 });

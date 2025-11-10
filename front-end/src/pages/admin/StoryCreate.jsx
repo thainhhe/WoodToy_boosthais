@@ -11,6 +11,8 @@ export default function StoryCreate() {
     tags: [],
     status: "draft",
     blocks: [],
+    sortOrder: 0,
+    youtubeUrl: "",
   });
   const [featuredImage, setFeaturedImage] = useState(null);
   const [suggestedTags, setSuggestedTags] = useState([]);
@@ -62,6 +64,8 @@ export default function StoryCreate() {
       if (form.description) fd.append("description", form.description);
       if (form.status) fd.append("status", form.status);
       if (form.tags?.length) fd.append("tags", form.tags.join(","));
+      fd.append("sortOrder", form.sortOrder);
+      if (form.youtubeUrl) fd.append("youtubeUrl", form.youtubeUrl);
 
       // prepare blocks without local File object
       const cleanBlocks = form.blocks.map((b, idx) => {
@@ -94,6 +98,16 @@ export default function StoryCreate() {
       <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
         <input className="w-full border rounded px-3 py-2" placeholder="Tiêu đề" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
         <textarea className="w-full border rounded px-3 py-2" rows={5} placeholder="Mô tả" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+        <div>
+          <label className="block mb-1 font-semibold">Link YouTube (tùy chọn)</label>
+          <input 
+            className="w-full border rounded px-3 py-2" 
+            placeholder="https://www.youtube.com/watch?v=..." 
+            value={form.youtubeUrl} 
+            onChange={(e) => setForm({ ...form, youtubeUrl: e.target.value })} 
+          />
+          <p className="text-sm text-gray-500 mt-1">Nhập link YouTube để hiển thị video trong story</p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block mb-1 font-semibold">Trạng thái</label>
@@ -101,6 +115,16 @@ export default function StoryCreate() {
               <option value="draft">Nháp</option>
               <option value="published">Công khai</option>
             </select>
+          </div>
+          <div>
+            <label className="block mb-1 font-semibold">Thứ tự sắp xếp</label>
+            <input 
+              type="number" 
+              className="w-full border rounded px-3 py-2" 
+              value={form.sortOrder} 
+              onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value, 10) || 0 })} 
+              placeholder="0"
+            />
           </div>
           <div>
             <label className="block mb-1 font-semibold">Ảnh đại diện</label>

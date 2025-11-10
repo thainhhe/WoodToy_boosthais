@@ -84,6 +84,8 @@ export default function StoryEdit() {
     description: "",
     status: "draft",
     tags: [],
+    sortOrder: 0,
+    youtubeUrl: "",
   });
   const [featuredImage, setFeaturedImage] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -105,6 +107,8 @@ export default function StoryEdit() {
           description: s.description || "",
           status: s.status || "draft",
           tags: Array.isArray(s.tags) ? s.tags : [],
+          sortOrder: s.sortOrder || 0,
+          youtubeUrl: s.youtubeUrl || "",
         });
         setExistingFeatured(s.featuredImage || "");
         setRemoveFeatured(false);
@@ -142,6 +146,8 @@ export default function StoryEdit() {
       if (form.description) fd.append("description", form.description);
       if (form.status) fd.append("status", form.status);
       if (form.tags?.length) fd.append("tags", form.tags.join(","));
+      fd.append("sortOrder", form.sortOrder);
+      if (form.youtubeUrl) fd.append("youtubeUrl", form.youtubeUrl);
       const normalized = blocks.map((b, i) => ({
         type: b.type,
         order: i,
@@ -202,6 +208,17 @@ export default function StoryEdit() {
             rows={3}
           />
         </div>
+        <div>
+          <label className="block text-sm mb-1">Link YouTube (tùy chọn)</label>
+          <input
+            name="youtubeUrl"
+            value={form.youtubeUrl}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2"
+            placeholder="https://www.youtube.com/watch?v=..."
+          />
+          <p className="text-xs text-gray-500 mt-1">Nhập link YouTube để hiển thị video trong story</p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm mb-1">Trạng thái</label>
@@ -214,6 +231,17 @@ export default function StoryEdit() {
               <option value="draft">Draft</option>
               <option value="published">Published</option>
             </select>
+          </div>
+          <div>
+            <label className="block text-sm mb-1">Thứ tự sắp xếp</label>
+            <input 
+              type="number" 
+              name="sortOrder"
+              value={form.sortOrder} 
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2" 
+              placeholder="0"
+            />
           </div>
           <div>
             <label className="block text-sm mb-1">Tags</label>

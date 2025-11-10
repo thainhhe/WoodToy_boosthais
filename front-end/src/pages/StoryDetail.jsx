@@ -53,6 +53,27 @@ export default function StoryDetail() {
     story._id || story.slug
   }`;
 
+  // Convert YouTube URL to embed URL
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return null;
+    try {
+      const urlObj = new URL(url);
+      let videoId = null;
+      
+      if (urlObj.hostname.includes('youtube.com')) {
+        videoId = urlObj.searchParams.get('v');
+      } else if (urlObj.hostname.includes('youtu.be')) {
+        videoId = urlObj.pathname.slice(1);
+      }
+      
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(story.youtubeUrl);
+
   return (
     <main className="max-w-6xl mx-auto p-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -63,6 +84,7 @@ export default function StoryDetail() {
 
           {/* Render blocks */}
           <div>
+         
             {(story.blocks || []).map((block, i) => {
               if (block.type === "text") {
                 return (
@@ -117,6 +139,30 @@ export default function StoryDetail() {
                 {detailUrl}
               </div>
             </div>
+
+            {youtubeEmbedUrl && (
+              <div className="bg-white border rounded-lg p-4 shadow-sm">
+                <h4 className="font-semibold mb-3">Video YouTube</h4>
+                <div className="aspect-video w-full">
+                  <iframe
+                    src={youtubeEmbedUrl}
+                    title="YouTube video player"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full rounded-md"
+                  ></iframe>
+                </div>
+                <a
+                  href={story.youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 text-sm text-blue-600 hover:underline block text-center"
+                >
+                  Xem trên YouTube
+                </a>
+              </div>
+            )}
 
             {/* Tags removed per request */}
           </div>
