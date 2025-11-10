@@ -129,7 +129,11 @@ export default function CartPage() {
             🛒 Giỏ hàng của bạn
           </h1>
           <p className="text-gray-600">
-            Bạn có <span className="font-semibold text-amber-600">{cart.items.length}</span> sản phẩm trong giỏ hàng
+            Bạn có{" "}
+            <span className="font-semibold text-amber-600">
+              {cart.items.length}
+            </span>{" "}
+            sản phẩm trong giỏ hàng
           </p>
         </div>
 
@@ -171,9 +175,15 @@ export default function CartPage() {
                           {item.productSnapshot?.name || item.product?.name}
                         </h3>
                       </Link>
-                      <p className="text-amber-600 font-semibold text-lg mt-1">
-                        {item.price?.toLocaleString("vi-VN")}₫
-                      </p>
+                      <div className="flex items-baseline gap-2 mt-1">
+                        <p className="text-amber-600 font-semibold text-lg">
+                          {item.price?.toLocaleString("vi-VN")}₫
+                        </p>
+                        {/* Hard-coded original price (UI-only) */}
+                        <p className="text-sm text-gray-400 line-through">
+                          399.000₫
+                        </p>
+                      </div>
 
                       {/* Quantity Controls */}
                       <div className="mt-4 flex items-center gap-4 flex-wrap">
@@ -189,7 +199,10 @@ export default function CartPage() {
                                   item.quantity - 1
                                 )
                               }
-                              disabled={item.quantity <= 1 || updatingItem === item.product._id}
+                              disabled={
+                                item.quantity <= 1 ||
+                                updatingItem === item.product._id
+                              }
                               className="px-3 py-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition"
                             >
                               −
@@ -259,7 +272,10 @@ export default function CartPage() {
                         <div className="flex justify-between items-center">
                           <span className="text-gray-600">Tổng:</span>
                           <span className="text-xl font-bold text-amber-600">
-                            {(item.price * item.quantity).toLocaleString("vi-VN")}₫
+                            {(item.price * item.quantity).toLocaleString(
+                              "vi-VN"
+                            )}
+                            ₫
                           </span>
                         </div>
                       </div>
@@ -304,8 +320,18 @@ export default function CartPage() {
                 to="/checkout"
                 className="w-full flex justify-center items-center gap-2 px-6 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-bold text-lg hover:from-amber-600 hover:to-orange-600 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
                 </svg>
                 Thanh toán ngay
               </Link>

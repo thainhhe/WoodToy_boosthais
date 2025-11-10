@@ -95,7 +95,9 @@ export default function ProductDetail() {
         toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
         navigate("/login");
       } else {
-        toast.error(err.response?.data?.message || "Thêm vào giỏ hàng thất bại.");
+        toast.error(
+          err.response?.data?.message || "Thêm vào giỏ hàng thất bại."
+        );
       }
     } finally {
       setIsAdding(false);
@@ -127,7 +129,9 @@ export default function ProductDetail() {
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
         <div className="text-center bg-white p-8 rounded-lg shadow-lg">
           <div className="text-6xl mb-4">🔍</div>
-          <p className="text-gray-700 text-lg font-medium">Không tìm thấy sản phẩm.</p>
+          <p className="text-gray-700 text-lg font-medium">
+            Không tìm thấy sản phẩm.
+          </p>
         </div>
       </div>
     );
@@ -136,20 +140,21 @@ export default function ProductDetail() {
   const images = product.images || [];
   const videos = product.videos || [];
   const legacyVideo = product.video;
-  
+
   // Map images
   const imageMedia = images.map((img) => ({ ...img, type: "image" }));
-  
+
   // Map videos from videos array
   const videoMedia = videos.map((video) => ({ ...video, type: "video" }));
-  
+
   // Add legacy single video if it exists and is not already in videos array
-  const legacyVideoMedia = legacyVideo && !videos.some(v => v.publicId === legacyVideo.publicId)
-    ? [{ ...legacyVideo, type: "video" }]
-    : [];
-  
+  const legacyVideoMedia =
+    legacyVideo && !videos.some((v) => v.publicId === legacyVideo.publicId)
+      ? [{ ...legacyVideo, type: "video" }]
+      : [];
+
   const allMedia = [...imageMedia, ...videoMedia, ...legacyVideoMedia];
-  
+
   // Debug log
   console.log("All media count:", allMedia.length);
   console.log("Images count:", imageMedia.length);
@@ -157,7 +162,7 @@ export default function ProductDetail() {
   console.log("Legacy video:", legacyVideoMedia.length);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 sm:p-10">
@@ -208,7 +213,11 @@ export default function ProductDetail() {
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                          <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <svg
+                            className="h-6 w-6 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
                             <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8.006v3.988a1 1 0 001.555.832l3.197-1.994a1 1 0 000-1.664l-3.197-1.994z" />
                           </svg>
                         </div>
@@ -222,12 +231,7 @@ export default function ProductDetail() {
             {/* Product Info */}
             <div className="flex flex-col">
               <div className="flex-1">
-                {/* Category Badge */}
-                {product.category && (
-                  <span className="inline-block bg-amber-100 text-amber-800 text-sm font-medium px-3 py-1 rounded-full mb-4">
-                    {product.category}
-                  </span>
-                )}
+                {/* Category removed (UI change requested) */}
 
                 <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
                   {product.name}
@@ -236,9 +240,15 @@ export default function ProductDetail() {
                 {/* Price */}
                 <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 mb-6 border border-amber-200">
                   <p className="text-sm text-gray-600 mb-1">Giá</p>
-                  <p className="text-4xl font-bold text-amber-600">
-                    {product.price.toLocaleString("vi-VN")}₫
-                  </p>
+                  <div className="flex items-baseline gap-3">
+                    <p className="text-4xl font-bold text-amber-600">
+                      {product.price.toLocaleString("vi-VN")}₫
+                    </p>
+                    {/* Hard-coded original price for UI only */}
+                    <p className="text-sm text-gray-400 line-through">
+                      399.000₫
+                    </p>
+                  </div>
                 </div>
 
                 {/* Stock Info */}
@@ -287,8 +297,18 @@ export default function ProductDetail() {
                     </>
                   ) : (
                     <>
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                        />
                       </svg>
                       {product.stock === 0 ? "Hết hàng" : "Thêm vào giỏ hàng"}
                     </>

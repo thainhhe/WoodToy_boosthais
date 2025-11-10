@@ -84,8 +84,14 @@ export default function Products() {
                     {product.description}
                   </p>
                   <div className="flex items-center justify-between">
-                    <div className="text-amber-600 font-bold">
-                      {product.price?.toLocaleString("vi-VN")}₫
+                    <div className="flex items-baseline gap-2">
+                      <div className="text-amber-600 font-bold">
+                        {product.price?.toLocaleString("vi-VN")}₫
+                      </div>
+                      {/* Hard-coded crossed-out original price (UI-only) */}
+                      <div className="text-sm text-gray-400 line-through">
+                        399.000₫
+                      </div>
                     </div>
                     <button
                       onClick={(e) => {

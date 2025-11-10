@@ -67,7 +67,7 @@ export default function Introduction() {
               khuyến khích tư duy nghệ thuật ở trẻ nhỏ.
             </p>
             <img
-              src="/wooden-house-puzzle.jpg"
+              src="/unnamed.jpg"
               alt="Đồ chơi nhà gỗ"
               className="rounded-xl w-3/4 max-w-xs mx-auto"
             />
@@ -81,7 +81,7 @@ export default function Introduction() {
             style={{ animationDelay: "0.4s" }}
           >
             <img
-              src="/wooden-animal-puzzle.jpg"
+              src="/unnamed.jpg"
               alt="Đồ chơi thú gỗ"
               className="rounded-xl w-3/4 max-w-xs mx-auto shadow-lg mb-6"
             />

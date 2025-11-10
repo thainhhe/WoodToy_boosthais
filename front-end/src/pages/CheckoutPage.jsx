@@ -8,11 +8,11 @@ const PROVINCE_API_URL = "https://open.oapi.vn/";
 
 // Helper: fetch JSON directly from API
 const safeFetchJson = async (url) => {
-  const res = await fetch(url, { 
+  const res = await fetch(url, {
     redirect: "follow",
     headers: {
-      'Accept': 'application/json',
-    }
+      Accept: "application/json",
+    },
   });
   if (!res.ok) {
     throw new Error(`HTTP ${res.status}`);
@@ -41,6 +41,7 @@ export default function CheckoutPage() {
   const fetchCartCount = useAuthStore((state) => state.fetchCartCount);
   const user = useAuthStore((state) => state.user); // Lấy thông tin user nếu cần
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("COD");
+  const [showQRModal, setShowQRModal] = useState(false);
 
   // --- Fetch Cart ---
   useEffect(() => {
@@ -70,9 +71,13 @@ export default function CheckoutPage() {
     const fetchProvinces = async () => {
       try {
         // API: open.oapi.vn/location/provinces?page=0&size=100
-        const data = await safeFetchJson(`${PROVINCE_API_URL}location/provinces?page=0&size=100`);
+        const data = await safeFetchJson(
+          `${PROVINCE_API_URL}location/provinces?page=0&size=100`
+        );
         // Handle paginated response - could be { data: [...], total: ... } or just array
-        const provincesList = Array.isArray(data) ? data : (data.data || data.content || []);
+        const provincesList = Array.isArray(data)
+          ? data
+          : data.data || data.content || [];
         setProvinces(provincesList);
       } catch (err) {
         console.error("Failed to fetch provinces:", err);
@@ -96,7 +101,9 @@ export default function CheckoutPage() {
           `${PROVINCE_API_URL}location/districts/${selectedProvince}?page=0&size=100`
         );
         // Handle paginated response
-        const districtsList = Array.isArray(data) ? data : (data.data || data.content || []);
+        const districtsList = Array.isArray(data)
+          ? data
+          : data.data || data.content || [];
         console.log("Districts response sample:", districtsList[0]); // Debug: check structure
         setDistricts(districtsList);
       } catch (err) {
@@ -116,14 +123,19 @@ export default function CheckoutPage() {
     const fetchWards = async () => {
       try {
         // API: open.oapi.vn/location/wards/{districtId}?page=0&size=100
-        const district = districts.find(d => (d.code || d.id) == selectedDistrict);
-        const districtId = district?.id || district?.districtId || selectedDistrict;
-        
+        const district = districts.find(
+          (d) => (d.code || d.id) == selectedDistrict
+        );
+        const districtId =
+          district?.id || district?.districtId || selectedDistrict;
+
         const data = await safeFetchJson(
           `${PROVINCE_API_URL}location/wards/${districtId}?page=0&size=100`
         );
         // Handle paginated response
-        const wardsList = Array.isArray(data) ? data : (data.data || data.content || []);
+        const wardsList = Array.isArray(data)
+          ? data
+          : data.data || data.content || [];
         setWards(wardsList);
       } catch (err) {
         console.error("Failed to fetch wards:", err);
@@ -148,18 +160,15 @@ export default function CheckoutPage() {
 
     // Lấy tên tỉnh, huyện, xã từ state để gửi đi
     // Support both code and id fields (new API might use id)
-    const provinceName = provinces.find(
-      (p) => (p.code || p.id) == selectedProvince
-    )?.name || provinces.find(
-      (p) => (p.code || p.id) == selectedProvince
-    )?.provinceName;
-    const districtName = districts.find(
-      (d) => (d.code || d.id) == selectedDistrict
-    )?.name || districts.find(
-      (d) => (d.code || d.id) == selectedDistrict
-    )?.districtName;
-    const wardName = wards.find((w) => (w.code || w.id) == selectedWard)?.name || 
-                     wards.find((w) => (w.code || w.id) == selectedWard)?.wardName;
+    const provinceName =
+      provinces.find((p) => (p.code || p.id) == selectedProvince)?.name ||
+      provinces.find((p) => (p.code || p.id) == selectedProvince)?.provinceName;
+    const districtName =
+      districts.find((d) => (d.code || d.id) == selectedDistrict)?.name ||
+      districts.find((d) => (d.code || d.id) == selectedDistrict)?.districtName;
+    const wardName =
+      wards.find((w) => (w.code || w.id) == selectedWard)?.name ||
+      wards.find((w) => (w.code || w.id) == selectedWard)?.wardName;
 
     if (
       !selectedProvince ||
@@ -206,6 +215,15 @@ export default function CheckoutPage() {
       setIsPlacingOrder(false);
     }
   };
+
+  // Close QR modal on Escape key
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") setShowQRModal(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [showQRModal]);
 
   if (loadingCart)
     return (
@@ -421,7 +439,11 @@ export default function CheckoutPage() {
                     type="radio"
                     value="QR"
                     checked={selectedPaymentMethod === "QR"}
-                    onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setSelectedPaymentMethod(v);
+                      if (v === "QR") setShowQRModal(true);
+                    }}
                     className="focus:ring-amber-500 h-4 w-4 text-amber-600 border-gray-300"
                   />
                   <label
@@ -438,13 +460,55 @@ export default function CheckoutPage() {
                 <div className="mb-6 p-4 border rounded-md bg-gray-50 flex flex-col items-center">
                   <p className="text-sm text-gray-600 mb-3 text-center">
                     Vui lòng quét mã QR dưới đây bằng ứng dụng ngân hàng của bạn
-                    để thanh toán.
+                    để thanh toán. Nhấn vào ảnh để phóng to.
                   </p>
-                  <img
-                    src="/payment-qr-code.png" // Đảm bảo bạn có file này trong thư mục /public
-                    alt="Mã QR thanh toán"
-                    className="w-48 h-48 border rounded-md"
+                  <button
+                    type="button"
+                    onClick={() => setShowQRModal(true)}
+                    className="focus:outline-none"
+                    aria-label="Mở mã QR lớn"
+                  >
+                    <img
+                      src="/qr.jpg"
+                      alt="Mã QR thanh toán"
+                      className="w-36 h-36 border rounded-md object-contain"
+                    />
+                  </button>
+                </div>
+              )}
+
+              {/* QR Modal */}
+              {showQRModal && (
+                <div
+                  className="fixed inset-0 z-50 flex items-center justify-center"
+                  aria-modal="true"
+                  role="dialog"
+                >
+                  <div
+                    className="absolute inset-0 bg-black/50"
+                    onClick={() => setShowQRModal(false)}
                   />
+                  <div className="relative bg-white rounded-lg shadow-lg max-w-4xl w-full mx-4">
+                    <div className="flex justify-end p-3">
+                      <button
+                        onClick={() => setShowQRModal(false)}
+                        className="text-gray-500 hover:text-gray-700 text-lg"
+                        aria-label="Đóng"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div className="p-6 flex flex-col items-center">
+                      <p className="text-sm text-gray-700 mb-4 text-center">
+                        Quét mã QR để thanh toán
+                      </p>
+                      <img
+                        src="/qr.jpg"
+                        alt="Mã QR"
+                        className="w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[560px] lg:h-[560px] object-contain"
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
 
