@@ -247,6 +247,33 @@ export default function ProductDetail() {
                   </button>
                 ))}
               </div>
+
+              {/* YouTube Video - Dưới thumbnails */}
+              {youtubeEmbedUrl && (
+                <div className="mt-4 bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <span>🎥</span> Video giới thiệu
+                  </h4>
+                  <div className="aspect-video w-full rounded-lg overflow-hidden">
+                    <iframe
+                      src={youtubeEmbedUrl}
+                      title="YouTube video player"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full"
+                    ></iframe>
+                  </div>
+                  <a
+                    href={product.youtubeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 text-sm text-blue-600 hover:underline block text-center"
+                  >
+                    Xem trên YouTube
+                  </a>
+                </div>
+              )}
             </div>
 
             {/* Product Info */}
@@ -335,33 +362,6 @@ export default function ProductDetail() {
                     </>
                   )}
                 </button>
-
-                {/* YouTube Video */}
-                {youtubeEmbedUrl && (
-                  <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <span>🎥</span> Video giới thiệu
-                    </h4>
-                    <div className="aspect-video w-full rounded-lg overflow-hidden">
-                      <iframe
-                        src={youtubeEmbedUrl}
-                        title="YouTube video player"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="w-full h-full"
-                      ></iframe>
-                    </div>
-                    <a
-                      href={product.youtubeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-3 text-sm text-blue-600 hover:underline block text-center"
-                    >
-                      Xem trên YouTube
-                    </a>
-                  </div>
-                )}
 
                 {/* QR Code */}
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
