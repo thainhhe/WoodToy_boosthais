@@ -63,7 +63,7 @@ const getProductById = async (req, res) => {
 // @access  Public (hoặc Private nếu cần authentication)
 const createProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock } = req.body;
+    const { name, description, price, category, stock, youtubeUrl } = req.body;
 
     // Validate required fields
     if (!name || price === undefined) {
@@ -87,6 +87,7 @@ const createProduct = async (req, res) => {
       price,
       category,
       stock,
+      youtubeUrl: youtubeUrl || undefined,
       images: [],
       videos: [],
     };
@@ -207,7 +208,7 @@ const createProduct = async (req, res) => {
 // @access  Public (hoặc Private nếu cần authentication)
 const updateProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock, deletedImages, deletedVideos, deleteVideo } = req.body;
+    const { name, description, price, category, stock, youtubeUrl, deletedImages, deletedVideos, deleteVideo } = req.body;
 
     const product = await Product.findById(req.params.id);
 
@@ -242,6 +243,7 @@ const updateProduct = async (req, res) => {
     if (price !== undefined) product.price = price;
     if (category !== undefined) product.category = category;
     if (stock !== undefined) product.stock = stock;
+    if (youtubeUrl !== undefined) product.youtubeUrl = youtubeUrl || undefined;
 
     // Handle image deletion
     if (deletedImages) {

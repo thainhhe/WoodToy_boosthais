@@ -93,6 +93,11 @@ const productSchema = new mongoose.Schema({
     default: 0,
     min: [0, "Stock cannot be negative"],
   },
+  youtubeUrl: {
+    type: String,
+    trim: true,
+    maxlength: [500, "YouTube URL cannot exceed 500 characters"],
+  },
   createdAt: {
     type: Date,
     default: Date.now,

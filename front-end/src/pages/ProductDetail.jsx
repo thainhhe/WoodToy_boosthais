@@ -161,6 +161,27 @@ export default function ProductDetail() {
   console.log("Videos count:", videoMedia.length);
   console.log("Legacy video:", legacyVideoMedia.length);
 
+  // Convert YouTube URL to embed URL
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return null;
+    try {
+      const urlObj = new URL(url);
+      let videoId = null;
+      
+      if (urlObj.hostname.includes('youtube.com')) {
+        videoId = urlObj.searchParams.get('v');
+      } else if (urlObj.hostname.includes('youtu.be')) {
+        videoId = urlObj.pathname.slice(1);
+      }
+      
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(product.youtubeUrl);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -314,6 +335,33 @@ export default function ProductDetail() {
                     </>
                   )}
                 </button>
+
+                {/* YouTube Video */}
+                {youtubeEmbedUrl && (
+                  <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <span>🎥</span> Video giới thiệu
+                    </h4>
+                    <div className="aspect-video w-full rounded-lg overflow-hidden">
+                      <iframe
+                        src={youtubeEmbedUrl}
+                        title="YouTube video player"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full"
+                      ></iframe>
+                    </div>
+                    <a
+                      href={product.youtubeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 text-sm text-blue-600 hover:underline block text-center"
+                    >
+                      Xem trên YouTube
+                    </a>
+                  </div>
+                )}
 
                 {/* QR Code */}
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">

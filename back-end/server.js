@@ -33,7 +33,7 @@
       "http://localhost:3000",
       "http://103.101.162.139",
       "http://103.101.162.139:5000",
-      "https://aaa.ncm26.tokyo",
+      "https://2handshop.id.vn",
       process.env.CORS_ORIGIN,
     ].filter(Boolean);
 

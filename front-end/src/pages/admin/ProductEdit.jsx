@@ -21,6 +21,7 @@ export default function ProductEdit() {
     price: "",
     category: "",
     stock: "",
+    youtubeUrl: "",
   });
   const [images, setImages] = useState([]); // File list cho ảnh mới
   const [videos, setVideos] = useState([]); // File list cho video mới
@@ -198,6 +199,19 @@ export default function ProductEdit() {
               className="w-full mt-1 p-2 border rounded"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="block text-gray-700 mb-2">Link YouTube (tùy chọn)</label>
+          <input
+            type="text"
+            name="youtubeUrl"
+            value={product.youtubeUrl}
+            onChange={handleChange}
+            className="w-full mt-1 p-2 border rounded"
+            placeholder="https://www.youtube.com/watch?v=..."
+          />
+          <p className="text-sm text-gray-500 mt-1">Nhập link YouTube để hiển thị video giới thiệu sản phẩm</p>
         </div>
         <div>
           <label className="block text-gray-700 mb-2">
