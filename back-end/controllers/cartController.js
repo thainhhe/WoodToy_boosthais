@@ -16,7 +16,7 @@ export const getCart = async (req, res) => {
   try {
     let cart = await Cart.findOne({ user: req.user._id }).populate(
       "items.product",
-      "name description price image images video category stock"
+      "name description price pricegiamgia image images video category stock"
     );
 
     // Create empty cart if not exists
@@ -88,12 +88,15 @@ export const addToCart = async (req, res) => {
       }
 
       cart.items[existingItemIndex].quantity = newQuantity;
+      // Update price to use discounted price if available
+      cart.items[existingItemIndex].price = product.pricegiamgia || product.price;
     } else {
-      // Add new item
+      // Add new item - use discounted price if available
+      const finalPrice = product.pricegiamgia || product.price;
       cart.items.push({
         product: productId,
         quantity,
-        price: product.price,
+        price: finalPrice,
         productSnapshot: {
           name: product.name,
           image: product.primaryImage || product.image || (product.images && product.images[0]?.url),
@@ -105,7 +108,7 @@ export const addToCart = async (req, res) => {
     await cart.save();
     
     // Populate before sending response
-    await cart.populate("items.product", "name description price image images video category stock");
+    await cart.populate("items.product", "name description price pricegiamgia image images video category stock");
 
     return sendSuccess(
       res,
@@ -156,10 +159,11 @@ export const updateCartItem = async (req, res) => {
     }
 
     cart.items[itemIndex].quantity = quantity;
-    cart.items[itemIndex].price = product.price; // Update price in case it changed
+    // Update price - use discounted price if available
+    cart.items[itemIndex].price = product.pricegiamgia || product.price;
 
     await cart.save();
-    await cart.populate("items.product", "name description price image images video category stock");
+    await cart.populate("items.product", "name description price pricegiamgia image images video category stock");
 
     return sendSuccess(
       res,
@@ -194,7 +198,7 @@ export const removeFromCart = async (req, res) => {
 
     cart.items.splice(itemIndex, 1);
     await cart.save();
-    await cart.populate("items.product", "name description price image images video category stock");
+    await cart.populate("items.product", "name description price pricegiamgia image images video category stock");
 
     return sendSuccess(
       res,

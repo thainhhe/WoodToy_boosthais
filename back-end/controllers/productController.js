@@ -63,7 +63,7 @@ const getProductById = async (req, res) => {
 // @access  Public (hoặc Private nếu cần authentication)
 const createProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock, youtubeUrl } = req.body;
+    const { name, description, price, pricegiamgia, category, stock, youtubeUrl } = req.body;
 
     // Validate required fields
     if (!name || price === undefined) {
@@ -73,6 +73,16 @@ const createProduct = async (req, res) => {
     // Validate price
     if (price < 0) {
       return sendValidationError(res, ["Price cannot be negative"]);
+    }
+
+    // Validate pricegiamgia
+    if (pricegiamgia !== undefined) {
+      if (pricegiamgia < 0) {
+        return sendValidationError(res, ["Discounted price cannot be negative"]);
+      }
+      if (pricegiamgia > price) {
+        return sendValidationError(res, ["Discounted price cannot be greater than regular price"]);
+      }
     }
 
     // Validate stock
@@ -85,6 +95,7 @@ const createProduct = async (req, res) => {
       name,
       description,
       price,
+      pricegiamgia: pricegiamgia || undefined,
       category,
       stock,
       youtubeUrl: youtubeUrl || undefined,
@@ -208,7 +219,7 @@ const createProduct = async (req, res) => {
 // @access  Public (hoặc Private nếu cần authentication)
 const updateProduct = async (req, res) => {
   try {
-    const { name, description, price, category, stock, youtubeUrl, deletedImages, deletedVideos, deleteVideo } = req.body;
+    const { name, description, price, pricegiamgia, category, stock, youtubeUrl, deletedImages, deletedVideos, deleteVideo } = req.body;
 
     const product = await Product.findById(req.params.id);
 
@@ -232,6 +243,17 @@ const updateProduct = async (req, res) => {
       return sendValidationError(res, ["Price cannot be negative"]);
     }
 
+    // Validate pricegiamgia if provided
+    if (pricegiamgia !== undefined) {
+      if (pricegiamgia < 0) {
+        return sendValidationError(res, ["Discounted price cannot be negative"]);
+      }
+      const finalPrice = price !== undefined ? price : product.price;
+      if (pricegiamgia > finalPrice) {
+        return sendValidationError(res, ["Discounted price cannot be greater than regular price"]);
+      }
+    }
+
     // Validate stock if provided
     if (stock !== undefined && stock < 0) {
       return sendValidationError(res, ["Stock cannot be negative"]);
@@ -241,6 +263,7 @@ const updateProduct = async (req, res) => {
     if (name !== undefined) product.name = name;
     if (description !== undefined) product.description = description;
     if (price !== undefined) product.price = price;
+    if (pricegiamgia !== undefined) product.pricegiamgia = pricegiamgia || undefined;
     if (category !== undefined) product.category = category;
     if (stock !== undefined) product.stock = stock;
     if (youtubeUrl !== undefined) product.youtubeUrl = youtubeUrl || undefined;

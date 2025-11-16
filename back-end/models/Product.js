@@ -53,6 +53,17 @@ const productSchema = new mongoose.Schema({
     required: [true, "Please provide a product price"],
     min: [0, "Price cannot be negative"],
   },
+  pricegiamgia: {
+    type: Number,
+    min: [0, "Discounted price cannot be negative"],
+    validate: {
+      validator: function(value) {
+        // If pricegiamgia is set, it must be less than or equal to price
+        return value === undefined || value === null || value <= this.price;
+      },
+      message: "Discounted price cannot be greater than regular price",
+    },
+  },
   // Deprecated: Use images array instead
   image: {
     type: String,

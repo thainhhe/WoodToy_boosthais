@@ -95,7 +95,18 @@ export default function ProductList() {
                 </td>
                 <td className="py-3 px-6 text-left">{product.category}</td>
                 <td className="py-3 px-6 text-right">
-                  {product.price.toLocaleString()}đ
+                  {product.pricegiamgia ? (
+                    <div className="flex flex-col items-end">
+                      <span className="text-amber-600 font-semibold">
+                        {product.pricegiamgia.toLocaleString()}đ
+                      </span>
+                      <span className="text-xs text-gray-400 line-through">
+                        {product.price.toLocaleString()}đ
+                      </span>
+                    </div>
+                  ) : (
+                    <span>{product.price.toLocaleString()}đ</span>
+                  )}
                 </td>
                 <td className="py-3 px-6 text-center">{product.stock}</td>
                 <td className="py-3 px-6 text-center">

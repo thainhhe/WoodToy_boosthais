@@ -554,11 +554,23 @@ export default function CheckoutPage() {
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {item.productSnapshot?.name || item.product?.name}
                     </p>
-                    <p className="text-sm text-gray-500">SL: {item.quantity}</p>
+                    <div className="flex items-baseline gap-2 text-sm">
+                      <span className="text-gray-500">SL: {item.quantity}</span>
+                      {item.product?.pricegiamgia && item.product?.pricegiamgia < item.product?.price && (
+                        <span className="text-xs text-red-500">Giảm giá!</span>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {(item.price * item.quantity).toLocaleString("vi-VN")}₫
-                  </p>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-900">
+                      {(item.price * item.quantity).toLocaleString("vi-VN")}₫
+                    </p>
+                    {item.product?.pricegiamgia && item.product?.pricegiamgia < item.product?.price && (
+                      <p className="text-xs text-gray-400 line-through">
+                        {(item.product.price * item.quantity).toLocaleString("vi-VN")}₫
+                      </p>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>

@@ -19,6 +19,7 @@ export default function ProductEdit() {
     name: "",
     description: "",
     price: "",
+    pricegiamgia: "",
     category: "",
     stock: "",
     youtubeUrl: "",
@@ -166,9 +167,9 @@ export default function ProductEdit() {
           ></textarea>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label>Giá</label>
+            <label>Giá gốc</label>
             <input
               type="number"
               name="price"
@@ -178,6 +179,21 @@ export default function ProductEdit() {
               required
             />
           </div>
+          <div>
+            <label>Giá giảm (tùy chọn)</label>
+            <input
+              type="number"
+              name="pricegiamgia"
+              value={product.pricegiamgia}
+              onChange={handleChange}
+              className="w-full mt-1 p-2 border rounded"
+              placeholder="Để trống nếu không giảm giá"
+            />
+            <p className="text-sm text-gray-500 mt-1">Giá sau giảm (nếu có)</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label>Tồn kho</label>
             <input

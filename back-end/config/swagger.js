@@ -122,6 +122,12 @@ const options = {
               minimum: 0,
               example: 29.99,
             },
+            pricegiamgia: {
+              type: "number",
+              description: "Discounted price in USD (optional)",
+              minimum: 0,
+              example: 24.99,
+            },
             image: {
               type: "string",
               description: "Product image URL",

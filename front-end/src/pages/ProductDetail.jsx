@@ -289,13 +289,23 @@ export default function ProductDetail() {
                 <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 mb-6 border border-amber-200">
                   <p className="text-sm text-gray-600 mb-1">Giá</p>
                   <div className="flex items-baseline gap-3">
-                    <p className="text-4xl font-bold text-amber-600">
-                      {product.price.toLocaleString("vi-VN")}₫
-                    </p>
-                    {/* Hard-coded original price for UI only */}
-                    <p className="text-sm text-gray-400 line-through">
-                      399.000₫
-                    </p>
+                    {product.pricegiamgia ? (
+                      <>
+                        <p className="text-4xl font-bold text-amber-600">
+                          {product.pricegiamgia.toLocaleString("vi-VN")}₫
+                        </p>
+                        <p className="text-xl text-gray-400 line-through">
+                          {product.price.toLocaleString("vi-VN")}₫
+                        </p>
+                        <span className="bg-red-500 text-white text-sm px-3 py-1 rounded-full font-bold">
+                          -{Math.round(((product.price - product.pricegiamgia) / product.price) * 100)}%
+                        </span>
+                      </>
+                    ) : (
+                      <p className="text-4xl font-bold text-amber-600">
+                        {product.price.toLocaleString("vi-VN")}₫
+                      </p>
+                    )}
                   </div>
                 </div>
 

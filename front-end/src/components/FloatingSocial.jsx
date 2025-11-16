@@ -16,8 +16,15 @@ const socials = [
     hover: "hover:shadow-lg hover:scale-110",
   },
   {
+    name: "Youtube",
+    url: "https://www.youtube.com/@LuminartsVietmyth", // Thay bằng link Facebook thực tế
+    icon: <img src="/ytb.png" alt="Youtube" className="w-9 h-9" />,
+    bg: "bg-white",
+    hover: "hover:shadow-lg hover:scale-110",
+  },
+  {
     name: "Shopee",
-    url: "https://shopee.vn/yourshopid", // Thay bằng link Shopee thực tế
+    url: "https://shopee.vn/vietmyth_luminarts?entryPoint=ShopBySearch&searchKeyword=vietmyth%20luminarts", // Thay bằng link Shopee thực tế
     icon: <img src="/ic_shopee.webp" alt="Shopee" className="w-9 h-9" />,
     bg: "bg-white",
     hover: "hover:shadow-lg hover:scale-110",

@@ -85,13 +85,20 @@ export default function Products() {
                   </p>
                   <div className="flex items-center justify-between">
                     <div className="flex items-baseline gap-2">
-                      <div className="text-amber-600 font-bold">
-                        {product.price?.toLocaleString("vi-VN")}₫
-                      </div>
-                      {/* Hard-coded crossed-out original price (UI-only) */}
-                      <div className="text-sm text-gray-400 line-through">
-                        399.000₫
-                      </div>
+                      {product.pricegiamgia ? (
+                        <>
+                          <div className="text-amber-600 font-bold">
+                            {product.pricegiamgia?.toLocaleString("vi-VN")}₫
+                          </div>
+                          <div className="text-sm text-gray-400 line-through">
+                            {product.price?.toLocaleString("vi-VN")}₫
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-amber-600 font-bold">
+                          {product.price?.toLocaleString("vi-VN")}₫
+                        </div>
+                      )}
                     </div>
                     <button
                       onClick={(e) => {

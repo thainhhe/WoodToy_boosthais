@@ -30,14 +30,14 @@ export default function StoryDetail() {
 
   if (loading)
     return (
-      <main className="max-w-4xl mx-auto p-6">
+      <main className="max-w-4xl mx-auto px-6 py-8 pt-24">
         <h2 className="text-xl text-center">Đang tải...</h2>
       </main>
     );
 
   if (error || !story)
     return (
-      <main className="max-w-4xl mx-auto p-6">
+      <main className="max-w-4xl mx-auto px-6 py-8 pt-24">
         <div className="text-center">
           <p className="text-red-500 mb-4">
             {error || "Không tìm thấy câu chuyện"}
@@ -75,10 +75,10 @@ export default function StoryDetail() {
   const youtubeEmbedUrl = getYouTubeEmbedUrl(story.youtubeUrl);
 
   return (
-    <main className="max-w-6xl mx-auto p-6">
+    <main className="max-w-6xl mx-auto px-6 py-8 pt-24">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <article className="prose max-w-full lg:col-span-2">
-          <h1 className="text-4xl font-extrabold mb-4">{story.title}</h1>
+          <h1 className="text-4xl font-extrabold mb-4 text-center">{story.title}</h1>
 
           {/* Featured image, date and author intentionally hidden per request */}
 
@@ -140,34 +140,39 @@ export default function StoryDetail() {
               </div>
             </div>
 
-            {youtubeEmbedUrl && (
-              <div className="bg-white border rounded-lg p-4 shadow-sm">
-                <h4 className="font-semibold mb-3">Video YouTube</h4>
-                <div className="aspect-video w-full">
-                  <iframe
-                    src={youtubeEmbedUrl}
-                    title="YouTube video player"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full rounded-md"
-                  ></iframe>
-                </div>
-                <a
-                  href={story.youtubeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 text-sm text-blue-600 hover:underline block text-center"
-                >
-                  Xem trên YouTube
-                </a>
-              </div>
-            )}
-
             {/* Tags removed per request */}
           </div>
         </aside>
       </div>
+
+      {/* Video YouTube - Đáy trang */}
+      {youtubeEmbedUrl && (
+        <div className="mt-12 max-w-4xl mx-auto">
+          <div className="bg-white border rounded-lg p-6 shadow-lg">
+            <h4 className="text-xl font-bold mb-4 text-center">🎥 Video giới thiệu</h4>
+            <div className="aspect-video w-full rounded-lg overflow-hidden">
+              <iframe
+                src={youtubeEmbedUrl}
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              ></iframe>
+            </div>
+            <div className="mt-4 text-center">
+              <a
+                href={story.youtubeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-blue-600 hover:underline font-medium"
+              >
+                Xem trên YouTube →
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

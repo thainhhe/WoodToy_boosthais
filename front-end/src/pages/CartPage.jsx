@@ -179,10 +179,11 @@ export default function CartPage() {
                         <p className="text-amber-600 font-semibold text-lg">
                           {item.price?.toLocaleString("vi-VN")}₫
                         </p>
-                        {/* Hard-coded original price (UI-only) */}
-                        <p className="text-sm text-gray-400 line-through">
-                          399.000₫
-                        </p>
+                        {item.product?.pricegiamgia && item.product?.pricegiamgia < item.product?.price && (
+                          <p className="text-sm text-gray-400 line-through">
+                            {item.product?.price?.toLocaleString("vi-VN")}₫
+                          </p>
+                        )}
                       </div>
 
                       {/* Quantity Controls */}
