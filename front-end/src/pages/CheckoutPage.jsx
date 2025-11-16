@@ -475,7 +475,7 @@ export default function CheckoutPage() {
                     aria-label="Mở mã QR lớn"
                   >
                     <img
-                      src="/qr.jpg"
+                      src="/qr.png"
                       alt="Mã QR thanh toán"
                       className="w-36 h-36 border rounded-md object-contain"
                     />
@@ -509,7 +509,7 @@ export default function CheckoutPage() {
                         Quét mã QR để thanh toán
                       </p>
                       <img
-                        src="/qr.jpg"
+                        src="/qr.png"
                         alt="Mã QR"
                         className="w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[560px] lg:h-[560px] object-contain"
                       />
