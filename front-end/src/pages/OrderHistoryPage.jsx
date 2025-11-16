@@ -115,7 +115,7 @@ export default function OrderHistoryPage() {
 
   if (loading)
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center pt-24">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium">Đang tải lịch sử đơn hàng...</p>
@@ -125,7 +125,7 @@ export default function OrderHistoryPage() {
 
   if (error)
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center pt-24">
         <div className="text-center bg-white p-8 rounded-lg shadow-lg">
           <div className="text-6xl mb-4">😔</div>
           <p className="text-red-500 text-lg font-medium">{error}</p>
@@ -141,7 +141,7 @@ export default function OrderHistoryPage() {
 
   if (orders.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center pt-24">
         <div className="text-center bg-white p-12 rounded-2xl shadow-xl max-w-md">
           <div className="text-8xl mb-6">🛍️</div>
           <h2 className="text-3xl font-bold text-gray-900 mb-3">
@@ -162,7 +162,7 @@ export default function OrderHistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 py-8 sm:py-12">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 pt-24 sm:pt-28 pb-8 sm:pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">

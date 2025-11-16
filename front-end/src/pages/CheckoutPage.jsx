@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCart, createOrder } from "../service/api";
 import useAuthStore from "../store/authStore";
+import toast from "react-hot-toast";
 
 // Use open.oapi.vn directly - no proxy needed if CORS is enabled
 const PROVINCE_API_URL = "https://open.oapi.vn/";
@@ -203,14 +204,19 @@ export default function CheckoutPage() {
 
     try {
       await createOrder(orderDetails);
-      alert("Đặt hàng thành công!");
+      toast.success("🎉 Đặt hàng thành công! Cảm ơn bạn đã mua hàng.", {
+        duration: 4000,
+      });
       fetchCartCount();
-      navigate("/");
+      // Chuyển đến trang lịch sử đơn hàng
+      setTimeout(() => {
+        navigate("/orders");
+      }, 1000);
     } catch (err) {
       console.error("Place order error:", err);
-      setError(
-        err.response?.data?.message || "Đặt hàng thất bại. Vui lòng thử lại."
-      );
+      const errorMessage = err.response?.data?.message || "Đặt hàng thất bại. Vui lòng thử lại.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsPlacingOrder(false);
     }

@@ -140,7 +140,7 @@ export default function OrderList() {
               <th className="py-3 px-6 text-left">Tổng tiền</th>
               <th className="py-3 px-6 text-left">Thanh toán</th>
               <th className="py-3 px-6 text-left">Ngày tạo</th>
-              <th className="py-3 px-6 text-center">Chi tiết</th>
+              {/* <th className="py-3 px-6 text-center">Chi tiết</th> */}
             </tr>
           </thead>
           <tbody className="text-gray-600 text-sm font-light">
@@ -173,14 +173,14 @@ export default function OrderList() {
                 <td className="py-3 px-6 text-left">
                   {new Date(order.createdAt).toLocaleString()}
                 </td>
-                <td className="py-3 px-6 text-center">
+                {/* <td className="py-3 px-6 text-center">
                   <button
                     onClick={() => setSelectedOrder(order)}
                     className="text-amber-600 hover:text-amber-900 font-medium"
                   >
                     Xem
                   </button>
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>
